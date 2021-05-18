@@ -15,10 +15,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        getActionBar();
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//        getSupportActionBar().setHomeButtonEnabled(true);
-
         Button addTaskButton =findViewById(R.id.button);
         addTaskButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -34,6 +30,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent showAllTasks=new Intent(MainActivity.this,AllTasks.class);
                 startActivity(showAllTasks);
+            }
+        });
+        Button userSettings=findViewById(R.id.settings);
+        userSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent userSettings=new Intent(MainActivity.this,SettingsPage.class);
+                startActivity(userSettings);
             }
         });
     }
