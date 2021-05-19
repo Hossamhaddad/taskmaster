@@ -4,10 +4,12 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -48,15 +50,19 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
         });
         RecyclerView recyclerView ;
       tasks=new ArrayList<>();
-        Task firstTask=new Task("firsttask","the first task body ","new");
-        Task secondTask=new Task("seondttask","the second task body ","new");
-        Task thirdTask=new Task("thirdtask","the third task body ","new");
+//        Task firstTask=new Task("firsttask","the first task body ","new");
+//        Task secondTask=new Task("seondttask","the second task body ","new");
+//        Task thirdTask=new Task("thirdtask","the third task body ","new");
+//
+//        tasks.add(firstTask);
+//        tasks.add(secondTask);
+//        tasks.add(thirdTask);
+        TaskDatabase db = Room.databaseBuilder(getApplicationContext(),
+                TaskDatabase.class, "tasks").allowMainThreadQueries().build();
+        TaskDao taskDao=db.taskDao();
+        tasks=taskDao.getAll();
 
-        tasks.add(firstTask);
-        tasks.add(secondTask);
-        tasks.add(thirdTask);
-
-
+        Log.d("tasks ", tasks.toString());
         recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
         TaskAdapter adapter = new TaskAdapter(tasks);
         LinearLayoutManager linear=  new LinearLayoutManager(this);
