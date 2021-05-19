@@ -13,37 +13,29 @@ import java.util.List;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
     public List<Task> tasks=new ArrayList<Task>();
-    public TaskListner taskListner;
-
-    public TaskAdapter(List<Task> tasks,TaskListner taskListner){
+    private OnTaskListner onTaskListner;
+    public TaskAdapter(List<Task> tasks){
         this.tasks=tasks;
-        this.taskListner=taskListner;
     }
-    public static class ViewHolder extends RecyclerView.ViewHolder  implements View.OnClickListener {
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private Task task;
         private TextView title;
         private TextView body;
-        private TaskListener taskListener;
-
-        public ViewHolder(View view, TaskListener taskListener) {
+        private OnTaskListner onTaskListner;
+        public ViewHolder(View view,OnTaskListner onTaskListner) {
             super(view);
-
             this.title = view.findViewById(R.id.taskTitle);
             this.body = view.findViewById(R.id.taskBody);
-            this.taskListner = taskListener;
-
+            this.onTaskListner=onTaskListner;
             itemView.setOnClickListener(this);
 
         }
+
         @Override
         public void onClick(View v) {
-       taskListener.onTaskClick(getAdapterPosition());
+            onTaskListner.onTaskListner(getAdapterPosition());
         }
-        public  interface TaskListener{
-            void onTaskClick(int position);
-        }
-
     }
     @NonNull
     @Override
@@ -52,7 +44,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         View listItem= layoutInflater.inflate(R.layout.fragment_task, parent, false);
 
-        ViewHolder viewHolder = new ViewHolder(listItem, taskListner);
+        ViewHolder viewHolder = new ViewHolder(listItem,onTaskListner);
         return viewHolder;
 
     }
@@ -67,5 +59,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
     @Override
     public int getItemCount() {
         return tasks.size();
+    }
+
+    public interface OnTaskListner{
+        void onTaskListner(int position);
     }
 }
