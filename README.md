@@ -21,3 +21,18 @@
 ## 3. All Tasks page where in this page there is an image and also here there's a back arrow that takes you to the homepage if you click on it .
 
 ![All Tasks](screenshots/alltasks.png)
+
+## Lab27
+
+## 1. User Setting Page where the user can add his name to be saved and the saved name will be viewed in the home page .
+
+![User setting](screenshots/savename.png)
+![User setting](screenshots/username.png)
+
+## 2. Home Page now Have Task buttons that takes you to that task detais when clicking on any of the task you will be taken to that task details page .
+
+![Home Page](screenshots/username.png)
+
+## 3. Task Details page when the user click on a specific task on Home Page he will be redirected to that task details pagr .
+
+![Task Details](screenshots/taskdetails.png)
