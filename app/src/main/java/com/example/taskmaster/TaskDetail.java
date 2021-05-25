@@ -2,6 +2,7 @@ package com.example.taskmaster;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -16,13 +17,17 @@ public class TaskDetail extends AppCompatActivity {
         getActionBar();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        TextView titleDetail= (TextView) findViewById(R.id.taskDetail);
+        TextView titleDetail = (TextView) findViewById(R.id.taskDetail);
 
-        titleDetail.setText(getIntent().getExtras().getString("title") );
+        titleDetail.setText(getIntent().getExtras().getString("title"));
 
-        TextView bodyDetail= (TextView) findViewById(R.id.taskDescription);
+        TextView bodyDetail = (TextView) findViewById(R.id.taskDescription);
 
-        bodyDetail.setText(getIntent().getExtras().getString("body") );
-        
+        bodyDetail.setText(getIntent().getExtras().getString("body"));
+
+        TextView taskDet = findViewById(R.id.taskDetail);
+        String task = getIntent().getExtras().getString("task");
+        taskDet.setText(task);
     }
+
 }

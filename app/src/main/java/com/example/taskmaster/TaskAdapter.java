@@ -1,3 +1,4 @@
+
 package com.example.taskmaster;
 
 import android.view.LayoutInflater;
@@ -14,8 +15,10 @@ import java.util.List;
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
     public List<Task> tasks=new ArrayList<Task>();
     private OnTaskListner onTaskListner;
-    public TaskAdapter(List<Task> tasks){
+    public TaskAdapter(List<Task> tasks , OnTaskListner onTaskListner){
         this.tasks=tasks;
+        this.onTaskListner=onTaskListner;
+
     }
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 

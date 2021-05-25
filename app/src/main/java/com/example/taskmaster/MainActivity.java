@@ -7,11 +7,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.util.Log;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,23 +51,56 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
                 startActivity(userSettings);
             }
         });
+
+
+
+
+        Button task1=findViewById(R.id.task1);
+        task1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent task1=new Intent(MainActivity.this,TaskDetail.class);
+                task1.putExtra("task","task1");
+                startActivity(task1);
+            }
+        });
+
+        Button task2=findViewById(R.id.task2);
+        task2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent task2=new Intent(MainActivity.this,TaskDetail.class);
+                task2.putExtra("task","task2");
+                startActivity(task2);
+            }
+        });
+        Button task3=findViewById(R.id.task3);
+        task3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent task3=new Intent(MainActivity.this,TaskDetail.class);
+                task3.putExtra("task","task3");
+                startActivity(task3);
+            }
+        });
+
         RecyclerView recyclerView ;
       tasks=new ArrayList<>();
-//        Task firstTask=new Task("firsttask","the first task body ","new");
-//        Task secondTask=new Task("seondttask","the second task body ","new");
-//        Task thirdTask=new Task("thirdtask","the third task body ","new");
-//
-//        tasks.add(firstTask);
-//        tasks.add(secondTask);
-//        tasks.add(thirdTask);
-        TaskDatabase db = Room.databaseBuilder(getApplicationContext(),
-                TaskDatabase.class, "tasks").allowMainThreadQueries().build();
-        TaskDao taskDao=db.taskDao();
-        tasks=taskDao.getAll();
+        Task firstTask=new Task("firsttask","the first task body ","new");
+        Task secondTask=new Task("seondttask","the second task body ","new");
+        Task thirdTask=new Task("thirdtask","the third task body ","new");
+
+        tasks.add(firstTask);
+        tasks.add(secondTask);
+        tasks.add(thirdTask);
+//        TaskDatabase db = Room.databaseBuilder(getApplicationContext(),
+//                TaskDatabase.class, "tasks").allowMainThreadQueries().build();
+//        TaskDao taskDao=db.taskDao();
+//        tasks=taskDao.getAll();
 
         Log.d("tasks ", tasks.toString());
         recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
-        TaskAdapter adapter = new TaskAdapter(tasks);
+        TaskAdapter adapter = new TaskAdapter(tasks,this);
         LinearLayoutManager linear=  new LinearLayoutManager(this);
         linear.setOrientation(RecyclerView.VERTICAL);
         recyclerView.setLayoutManager(linear);
@@ -73,9 +109,18 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
 
     @Override
     public void onTaskListner(int position) {
-        Intent intent=new Intent(MainActivity.this,TaskDetail.class);
+        Intent intent=new Intent(this,TaskDetail.class);
         intent.putExtra("title",tasks.get(position).getTitle());
-        intent.putExtra("title",tasks.get(position).getBody());
+        intent.putExtra("body",tasks.get(position).getBody());
         startActivity(intent);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        TextView userName=findViewById(R.id.viewUserName);
+        SharedPreferences sharedPreferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        userName.setText(sharedPreferences.getString("name","userName")+"'s Tasks");
+
     }
 }
