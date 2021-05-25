@@ -21,7 +21,7 @@ public class AddTask extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         TaskDatabase db = Room.databaseBuilder(getApplicationContext(),
-                TaskDatabase.class, "tasks").allowMainThreadQueries().build();
+                TaskDatabase.class, "task").allowMainThreadQueries().build();
         TaskDao taskDao=db.taskDao();
         List<Task> tasks=taskDao.getAll();
         super.onCreate(savedInstanceState);
@@ -35,14 +35,26 @@ public class AddTask extends AppCompatActivity {
             public void onClick(View v) {
                 Toast buttonToast=Toast.makeText(AddTask.this,db.toString(),Toast.LENGTH_SHORT);
                 buttonToast.show();
-                String title=findViewById(R.id.newTaskTitle).toString();
-                String description=findViewById(R.id.newTaskDescription).toString();
+                EditText title=findViewById(R.id.newTaskTitle);
+                EditText description=findViewById(R.id.newTaskDescription);
 
-             Task task=new Task(title,description,"new");
+             Task task=new Task(title.getText().toString(),description.getText().toString(),"new");
              db.taskDao().insertAll(task);
                 Log.d("databsae",db.toString());
+                finish();
 
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        TextView counts=findViewById(R.id.textView6);
+        TaskDatabase db = Room.databaseBuilder(getApplicationContext(),
+                TaskDatabase.class, "task").allowMainThreadQueries().build();
+        TaskDao taskDao=db.taskDao();
+        db.taskDao().getAll().size();
+        counts.setText("Total Tasks :"+ db.taskDao().getAll().size());
     }
 }

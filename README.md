@@ -50,3 +50,18 @@
 ## 2. when clicking on any of the recycler view task it will take you to that task detials page
 
 ![rec view2](screenshots/details.png)
+
+## Lab 29
+
+## adding a Room database to save data and get data from it in order to save tasks and let the recycler view take the data from the room data base .
+
+## 1. when you use add task page the task will be saved in the room database and you will see it in the home page the recycler view will get data from the room database
+
+![db task](screenshots/dbtask1.png)  
+![db task2 ](screenshots/dbtask2.png)
+
+## 2. you can add task and save them in the room database and you can see how many taks are saved in the database in total tasks view
+
+![add task ](screenshots/addTasks.png)
+
+## 3. when click on any task at the home page you will be taken to that task details page

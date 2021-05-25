@@ -5,11 +5,11 @@ import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "tasks")
+@Entity(tableName = "task")
 public class Task {
     @NonNull
-    @PrimaryKey
-    public int id;
+    @PrimaryKey(autoGenerate = true)
+    public long id;
     private String title;
     private String body;
     private String state;

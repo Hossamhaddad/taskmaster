@@ -86,19 +86,18 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
 
         RecyclerView recyclerView ;
       tasks=new ArrayList<>();
-        Task firstTask=new Task("firsttask","the first task body ","new");
-        Task secondTask=new Task("seondttask","the second task body ","new");
-        Task thirdTask=new Task("thirdtask","the third task body ","new");
+//        Task firstTask=new Task("firsttask","the first task body ","new");
+//        Task secondTask=new Task("seondttask","the second task body ","new");
+//        Task thirdTask=new Task("thirdtask","the third task body ","new");
+//
+//        tasks.add(firstTask);
+//        tasks.add(secondTask);
+//        tasks.add(thirdTask);
+        TaskDatabase db = Room.databaseBuilder(getApplicationContext(),
+                TaskDatabase.class, "task").allowMainThreadQueries().build();
+        TaskDao taskDao=db.taskDao();
+        tasks=taskDao.getAll();
 
-        tasks.add(firstTask);
-        tasks.add(secondTask);
-        tasks.add(thirdTask);
-//        TaskDatabase db = Room.databaseBuilder(getApplicationContext(),
-//                TaskDatabase.class, "tasks").allowMainThreadQueries().build();
-//        TaskDao taskDao=db.taskDao();
-//        tasks=taskDao.getAll();
-
-        Log.d("tasks ", tasks.toString());
         recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
         TaskAdapter adapter = new TaskAdapter(tasks,this);
         LinearLayoutManager linear=  new LinearLayoutManager(this);
