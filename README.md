@@ -36,3 +36,32 @@
 ## 3. Task Details page when the user click on a specific task on Home Page he will be redirected to that task details pagr .
 
 ![Task Details](screenshots/taskdetails.png)
+
+## Lab 28
+
+## adding a recycler view for the app and using it to view tasks data
+
+## 1. show the task in the home page where the user can see all his tasks in the home page and can click on them to see them in taskdetails page
+
+![rec view1](screenshots/recview1.png)
+
+![rec view2](screenshots/recview2.png)
+
+## 2. when clicking on any of the recycler view task it will take you to that task detials page
+
+![rec view2](screenshots/details.png)
+
+## Lab 29
+
+## adding a Room database to save data and get data from it in order to save tasks and let the recycler view take the data from the room data base .
+
+## 1. when you use add task page the task will be saved in the room database and you will see it in the home page the recycler view will get data from the room database
+
+![db task](screenshots/dbtask1.png)  
+![db task2 ](screenshots/dbtask2.png)
+
+## 2. you can add task and save them in the room database and you can see how many taks are saved in the database in total tasks view
+
+![add task ](screenshots/addTasks.png)
+
+## 3. when click on any task at the home page you will be taken to that task details page

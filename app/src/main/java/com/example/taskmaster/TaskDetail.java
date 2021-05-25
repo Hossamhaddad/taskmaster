@@ -16,8 +16,18 @@ public class TaskDetail extends AppCompatActivity {
         setContentView(R.layout.activity_task_detail);
         getActionBar();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        TextView titleDetail = (TextView) findViewById(R.id.taskDetail);
+
+        titleDetail.setText(getIntent().getExtras().getString("title"));
+
+        TextView bodyDetail = (TextView) findViewById(R.id.taskDescription);
+
+        bodyDetail.setText(getIntent().getExtras().getString("body"));
+
         TextView taskDet = findViewById(R.id.taskDetail);
-       String task=getIntent().getExtras().getString("task");
+        String task = getIntent().getExtras().getString("task");
         taskDet.setText(task);
     }
+
 }
