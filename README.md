@@ -36,3 +36,17 @@
 ## 3. Task Details page when the user click on a specific task on Home Page he will be redirected to that task details pagr .
 
 ![Task Details](screenshots/taskdetails.png)
+
+## Lab 28
+
+## adding a recycler view for the app and using it to view tasks data
+
+## 1. show the task in the home page where the user can see all his tasks in the home page and can click on them to see them in taskdetails page
+
+![rec view1](screenshots/recview1.png)
+
+![rec view2](screenshots/recview2.png)
+
+## 2. when clicking on any of the recycler view task it will take you to that task detials page
+
+![rec view2](screenshots/details.png)
