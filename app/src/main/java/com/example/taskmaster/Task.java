@@ -13,6 +13,15 @@ public class Task {
     private String title;
     private String body;
     private String state;
+    private String key;
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
 
     public String getTitle() {
         return title;

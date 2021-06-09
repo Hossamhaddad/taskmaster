@@ -1,0 +1,17 @@
+{
+  "api": {},
+  "auth": {
+    "taskmaster556d444a": {
+      "service": "Cognito",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false
+    }
+  },
+  "storage": {
+    "images": {
+      "service": "S3",
+      "providerPlugin": "awscloudformation"
+    }
+  }
+}
