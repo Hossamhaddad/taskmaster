@@ -87,3 +87,11 @@
 ## 4. the user can sign out of his account by clicking sign out button also the authenticated user name will be visiable in the main page
 
 ![Sign Out ](screenshots/ViewUserName.png)
+
+## S3
+
+## The User Now can upload an image and the image will be stored in the cloud for the user
+
+## Notification
+
+## The user can recieve a notification once he opened the application a welcome message notification will be send to the user

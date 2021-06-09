@@ -16,5 +16,41 @@
         "taskmaster556d444a": {}
       }
     }
+  },
+  "husam": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-taskmaster-husam-162501-authRole",
+      "UnauthRoleArn": "arn:aws:iam::682182848276:role/amplify-taskmaster-husam-162501-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::682182848276:role/amplify-taskmaster-husam-162501-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-taskmaster-husam-162501-deployment",
+      "UnauthRoleName": "amplify-taskmaster-husam-162501-unauthRole",
+      "StackName": "amplify-taskmaster-husam-162501",
+      "StackId": "arn:aws:cloudformation:us-east-1:682182848276:stack/amplify-taskmaster-husam-162501/1a947810-c926-11eb-b537-0e4c53e0aefd",
+      "AmplifyAppId": "d25w1xy9s6dn09"
+    },
+    "categories": {
+      "auth": {
+        "taskmaster556d444a": {}
+      }
+    }
+  },
+  "haddad": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-taskmaster-haddad-191841-authRole",
+      "UnauthRoleArn": "arn:aws:iam::682182848276:role/amplify-taskmaster-haddad-191841-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::682182848276:role/amplify-taskmaster-haddad-191841-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-taskmaster-haddad-191841-deployment",
+      "UnauthRoleName": "amplify-taskmaster-haddad-191841-unauthRole",
+      "StackName": "amplify-taskmaster-haddad-191841",
+      "StackId": "arn:aws:cloudformation:us-east-1:682182848276:stack/amplify-taskmaster-haddad-191841/5de7a6b0-c93e-11eb-b08f-1212f512cf43",
+      "AmplifyAppId": "d25w1xy9s6dn09"
+    },
+    "categories": {
+      "auth": {
+        "taskmaster556d444a": {}
+      }
+    }
   }
 }

@@ -1,6 +1,6 @@
 {
     "identityPoolName": "taskmaster556d444a_identitypool_556d444a",
-    "allowUnauthenticatedIdentities": false,
+    "allowUnauthenticatedIdentities": true,
     "resourceNameTruncated": "taskma556d444a",
     "userPoolName": "taskmaster556d444a_userpool_556d444a",
     "autoVerifiedAttributes": [
