@@ -13,6 +13,24 @@ public class Task {
     private String title;
     private String body;
     private String state;
+    private String key;
+    private String city;
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
 
     public String getTitle() {
         return title;

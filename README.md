@@ -65,3 +65,41 @@
 ![add task ](screenshots/addTasks.png)
 
 ## 3. when click on any task at the home page you will be taken to that task details page
+
+## Cognito
+
+## Adding Amplify Cognito for authintacation
+
+## 1. SignUp page where you can sign up for a new account in order to use the app
+
+![Sign Up ](screenshots/SignUpButton.png)
+
+## 2. when you press sign up button you will be redirect to the sign up form where you can add your info
+
+![Sign Up form](screenshots/SignUp.png)
+
+## a confirmation code will be send to you in order to verify the account
+
+## 3. after sign Up the user will be able to sign in his account
+
+![Sign In ](screenshots/SignIn.png)
+
+## 4. the user can sign out of his account by clicking sign out button also the authenticated user name will be visiable in the main page
+
+![Sign Out ](screenshots/ViewUserName.png)
+
+## S3
+
+## The User Now can upload an image and the image will be stored in the cloud for the user
+
+## Notification
+
+## The user can recieve a notification once he opened the application a welcome message notification will be send to the user
+
+## Location
+
+## When the use add new task the user location will be saved with that task and will show the city name in the task details page .
+
+## Intent Filter
+
+## User can uploade images from other applications not just his phone
