@@ -99,3 +99,7 @@
 ## Location
 
 ## When the use add new task the user location will be saved with that task and will show the city name in the task details page .
+
+## Intent Filter
+
+## User can uploade images from other applications not just his phone
