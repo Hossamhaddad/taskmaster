@@ -95,3 +95,7 @@
 ## Notification
 
 ## The user can recieve a notification once he opened the application a welcome message notification will be send to the user
+
+## Location
+
+## When the use add new task the user location will be saved with that task and will show the city name in the task details page .

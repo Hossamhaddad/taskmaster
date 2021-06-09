@@ -1,15 +1,21 @@
 package com.example.taskmaster;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
+import android.Manifest;
 import android.app.Application;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.util.Log;
@@ -26,7 +32,10 @@ import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin;
 import com.amplifyframework.core.Amplify;
 import com.amplifyframework.datastore.AWSDataStorePlugin;
 import com.amplifyframework.storage.s3.AWSS3StoragePlugin;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.io.File;
@@ -36,11 +45,13 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTaskListner {
     TextView userName;
     List<Task> tasks;
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-           userName=findViewById(R.id.viewUserName);
+        userName = findViewById(R.id.viewUserName);
 
 
         FirebaseMessaging.getInstance().getToken()
@@ -68,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
 //            }
 //        });
 
-        Intent mainAct=new Intent(this,MainActivity.class);
+        Intent mainAct = new Intent(this, MainActivity.class);
 
 //        try {
 //            Amplify.addPlugin(new AWSDataStorePlugin());
@@ -80,28 +91,28 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
 //        }catch (AmplifyException exception){
 //         Log.i("Error" ,exception.toString());
 //        };
-        Button addTaskButton =findViewById(R.id.button);
+        Button addTaskButton = findViewById(R.id.button);
         addTaskButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent addTaskPage=new Intent(MainActivity.this,AddTask.class);
+                Intent addTaskPage = new Intent(MainActivity.this, AddTask.class);
                 startActivity(addTaskPage);
             }
         });
 
-        Button showAllTasks= findViewById(R.id.button3);
+        Button showAllTasks = findViewById(R.id.button3);
         showAllTasks.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent showAllTasks=new Intent(MainActivity.this,AllTasks.class);
+                Intent showAllTasks = new Intent(MainActivity.this, AllTasks.class);
                 startActivity(showAllTasks);
             }
         });
-        Button userSettings=findViewById(R.id.settings);
+        Button userSettings = findViewById(R.id.settings);
         userSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent userSettings=new Intent(MainActivity.this,SettingsPage.class);
+                Intent userSettings = new Intent(MainActivity.this, SettingsPage.class);
                 startActivity(userSettings);
             }
         });
@@ -136,8 +147,8 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
 //            }
 //        });
 
-        RecyclerView recyclerView ;
-      tasks=new ArrayList<>();
+        RecyclerView recyclerView;
+        tasks = new ArrayList<>();
 //        Task firstTask=new Task("firsttask","the first task body ","new");
 //        Task secondTask=new Task("seondttask","the second task body ","new");
 //        Task thirdTask=new Task("thirdtask","the third task body ","new");
@@ -147,25 +158,25 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
 //        tasks.add(thirdTask);
         TaskDatabase db = Room.databaseBuilder(getApplicationContext(),
                 TaskDatabase.class, "task").allowMainThreadQueries().build();
-        TaskDao taskDao=db.taskDao();
-        tasks=taskDao.getAll();
+        TaskDao taskDao = db.taskDao();
+        tasks = taskDao.getAll();
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
-        TaskAdapter adapter = new TaskAdapter(tasks,this);
-        LinearLayoutManager linear=  new LinearLayoutManager(this);
+        TaskAdapter adapter = new TaskAdapter(tasks, this);
+        LinearLayoutManager linear = new LinearLayoutManager(this);
         linear.setOrientation(RecyclerView.VERTICAL);
         recyclerView.setLayoutManager(linear);
         recyclerView.setAdapter(adapter);
 
-        findViewById(R.id.SignOut).setOnClickListener(view->{
+        findViewById(R.id.SignOut).setOnClickListener(view -> {
             Amplify.Auth.signOut(
                     () -> Log.i("AuthQuickstart", "Signed out successfully"),
                     error -> Log.e("AuthQuickstart", error.toString())
             );
-            Intent backToMain=new Intent(this,SignUp.class);
+            Intent backToMain = new Intent(this, SignUp.class);
             startActivity(backToMain);
         });
-        if(AWSMobileClient.getInstance().getUsername()!=null){
+        if (AWSMobileClient.getInstance().getUsername() != null) {
             userName.setText(AWSMobileClient.getInstance().getUsername());
         }
 
@@ -176,6 +187,7 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
         Intent intent=new Intent(this,TaskDetail.class);
         intent.putExtra("title",tasks.get(position).getTitle());
         intent.putExtra("body",tasks.get(position).getBody());
+        intent.putExtra("city",tasks.get(position).getCity());
         startActivity(intent);
     }
 
