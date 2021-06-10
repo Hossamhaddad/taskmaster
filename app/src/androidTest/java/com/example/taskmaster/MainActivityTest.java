@@ -1,8 +1,10 @@
 package com.example.taskmaster;
 
+import static org.junit.Assert.*;
 import android.content.Context;
 
 import androidx.test.espresso.Espresso;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -19,21 +21,31 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withInputType;
 import static org.junit.Assert.*;
 
-/**
- * Instrumented test, which will execute on an Android device.
- *
- * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
- */
 @RunWith(AndroidJUnit4.class)
-public class ExampleInstrumentedTest {
+public class MainActivityTest {
+    @Rule
+    public ActivityScenarioRule<MainActivity> activityRule =
+            new ActivityScenarioRule<>(MainActivity.class);
+
+
     @Test
-    public void useAppContext() {
-        // Context of the app under test.
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.example.taskmaster", appContext.getPackageName());
+    public void testUserNameTitle() {
+        onView(withId(R.id.viewUserName)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testAddTaskButton() {
+        onView(withId(R.id.button2)).perform(click());
+        onView(withId(R.id.newTaskTitle)).check(matches(isDisplayed()));
+        onView(withId(R.id.newTaskDescription)).check(matches(isDisplayed()));
     }
     @Test
-    public void userinput() {
-        onView(withId(R.id.settings)).perform(click()).check(matches(isDisplayed()));
+    public void testAllTasView() {
+        onView(withId(R.id.button3)).perform(click());
     }
+    @Test
+    public void testAddUserName() {
+        onView(withId(R.id.addUserName)).perform(click());
+    }
+
 }

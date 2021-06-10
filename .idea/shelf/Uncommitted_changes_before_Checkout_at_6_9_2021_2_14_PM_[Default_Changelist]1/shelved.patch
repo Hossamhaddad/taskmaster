@@ -1,0 +1,1199 @@
+Index: amplify/backend/api/taskmaster/schema.graphql
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>enum State {\r\n    NEW\r\n    ASSIGNED\r\n    InProgress\r\n    Complete\r\n}\r\n\r\ntype Task @model {\r\n    id: ID!\r\n    title: String!\r\n    body: String\r\n    state: State\r\n}
+===================================================================
+--- amplify/backend/api/taskmaster/schema.graphql	(revision 70341eea1ec62f01ed4c345aa2ac8154d7275edf)
++++ amplify/backend/api/taskmaster/schema.graphql	(date 1623181318638)
+@@ -1,13 +1,13 @@
+-enum State {
+-    NEW
+-    ASSIGNED
+-    InProgress
+-    Complete
++enum Status {
++  New
++  Pending
++  Assigned
++  Complete
+ }
+ 
+ type Task @model {
+-    id: ID!
+-    title: String!
+-    body: String
+-    state: State
+-}
+\ No newline at end of file
++  id: ID!
++  title: String!
++  status: Status
++  description: String
++}
+Index: amplify/backend/storage/Images/storage-params.json
+===================================================================
+--- amplify/backend/storage/Images/storage-params.json	(revision 70341eea1ec62f01ed4c345aa2ac8154d7275edf)
++++ amplify/backend/storage/Images/storage-params.json	(revision 70341eea1ec62f01ed4c345aa2ac8154d7275edf)
+@@ -1,1 +0,0 @@
+-{}
+\ No newline at end of file
+Index: amplify/backend/storage/Images/parameters.json
+===================================================================
+--- amplify/backend/storage/Images/parameters.json	(revision 70341eea1ec62f01ed4c345aa2ac8154d7275edf)
++++ amplify/backend/storage/Images/parameters.json	(revision 70341eea1ec62f01ed4c345aa2ac8154d7275edf)
+@@ -1,35 +0,0 @@
+-{
+-    "bucketName": "imagesfolder",
+-    "authPolicyName": "s3_amplify_5ae9aa2c",
+-    "unauthPolicyName": "s3_amplify_5ae9aa2c",
+-    "authRoleName": {
+-        "Ref": "AuthRoleName"
+-    },
+-    "unauthRoleName": {
+-        "Ref": "UnauthRoleName"
+-    },
+-    "selectedGuestPermissions": [
+-        "s3:GetObject",
+-        "s3:ListBucket"
+-    ],
+-    "selectedAuthenticatedPermissions": [
+-        "s3:PutObject",
+-        "s3:GetObject",
+-        "s3:ListBucket",
+-        "s3:DeleteObject"
+-    ],
+-    "s3PermissionsAuthenticatedPublic": "s3:PutObject,s3:GetObject,s3:DeleteObject",
+-    "s3PublicPolicy": "Public_policy_586351a1",
+-    "s3PermissionsAuthenticatedUploads": "s3:PutObject",
+-    "s3UploadsPolicy": "Uploads_policy_586351a1",
+-    "s3PermissionsAuthenticatedProtected": "s3:PutObject,s3:GetObject,s3:DeleteObject",
+-    "s3ProtectedPolicy": "Protected_policy_586351a1",
+-    "s3PermissionsAuthenticatedPrivate": "s3:PutObject,s3:GetObject,s3:DeleteObject",
+-    "s3PrivatePolicy": "Private_policy_586351a1",
+-    "AuthenticatedAllowList": "ALLOW",
+-    "s3ReadPolicy": "read_policy_586351a1",
+-    "s3PermissionsGuestPublic": "DISALLOW",
+-    "s3PermissionsGuestUploads": "DISALLOW",
+-    "GuestAllowList": "DISALLOW",
+-    "triggerFunction": "NONE"
+-}
+\ No newline at end of file
+Index: amplify/backend/storage/Images/s3-cloudformation-template.json
+===================================================================
+--- amplify/backend/storage/Images/s3-cloudformation-template.json	(revision 70341eea1ec62f01ed4c345aa2ac8154d7275edf)
++++ amplify/backend/storage/Images/s3-cloudformation-template.json	(revision 70341eea1ec62f01ed4c345aa2ac8154d7275edf)
+@@ -1,657 +0,0 @@
+-{
+-	"AWSTemplateFormatVersion": "2010-09-09",
+-	"Description": "S3 resource stack creation using Amplify CLI",
+-	"Parameters": {
+-		"bucketName": {
+-			"Type": "String"
+-		},
+-		"authPolicyName": {
+-			"Type": "String"
+-		},
+-		"unauthPolicyName": {
+-			"Type": "String"
+-		},
+-		"authRoleName": {
+-			"Type": "String"
+-		},
+-		"unauthRoleName": {
+-			"Type": "String"
+-		},
+-		"s3PublicPolicy": {
+-			"Type": "String",
+-			"Default" : "NONE"
+-		},
+-		"s3PrivatePolicy": {
+-			"Type": "String",
+-			"Default" : "NONE"
+-		},
+-		"s3ProtectedPolicy": {
+-			"Type": "String",
+-			"Default" : "NONE"
+-		},
+-		"s3UploadsPolicy": {
+-			"Type": "String",
+-			"Default" : "NONE"
+-		},
+-		"s3ReadPolicy": {
+-			"Type": "String",
+-			"Default" : "NONE"
+-		},
+-		"s3PermissionsAuthenticatedPublic": {
+-			"Type": "String",
+-			"Default" : "DISALLOW"
+-		},
+-		"s3PermissionsAuthenticatedProtected": {
+-			"Type": "String",
+-			"Default" : "DISALLOW"
+-		},
+-		"s3PermissionsAuthenticatedPrivate": {
+-			"Type": "String",
+-			"Default" : "DISALLOW"
+-		},
+-		"s3PermissionsAuthenticatedUploads": {
+-			"Type": "String",
+-			"Default" : "DISALLOW"
+-		},
+-		"s3PermissionsGuestPublic": {
+-			"Type": "String",
+-			"Default" : "DISALLOW"
+-		},
+-		"s3PermissionsGuestUploads": {
+-			"Type": "String",
+-			"Default" : "DISALLOW"		},
+-		"AuthenticatedAllowList": {
+-			"Type": "String",
+-			"Default" : "DISALLOW"
+-		},
+-		"GuestAllowList": {
+-			"Type": "String",
+-			"Default" : "DISALLOW"
+-		},
+-		"selectedGuestPermissions": {
+-			"Type": "CommaDelimitedList",
+-			"Default" : "NONE"
+-		},
+-		"selectedAuthenticatedPermissions": {
+-			"Type": "CommaDelimitedList",
+-			"Default" : "NONE"
+-		},
+-		"env": {
+-			"Type": "String"
+-		},
+-		"triggerFunction": {
+-			"Type": "String"
+-		}
+-	
+-
+-	},
+-	"Conditions": {
+-		"ShouldNotCreateEnvResources": {
+-			"Fn::Equals": [
+-				{
+-					"Ref": "env"
+-				},
+-				"NONE"
+-			]
+-		},
+-		"CreateAuthPublic": {
+-			"Fn::Not" : [{
+-				"Fn::Equals" : [
+-					 {"Ref" : "s3PermissionsAuthenticatedPublic"},
+-					 "DISALLOW"
+-				]
+-		 }]
+-		},
+-		"CreateAuthProtected": {
+-			"Fn::Not" : [{
+-				"Fn::Equals" : [
+-					 {"Ref" : "s3PermissionsAuthenticatedProtected"},
+-					 "DISALLOW"
+-				]
+-		 }]
+-		},
+-		"CreateAuthPrivate": {
+-			"Fn::Not" : [{
+-				"Fn::Equals" : [
+-					 {"Ref" : "s3PermissionsAuthenticatedPrivate"},
+-					 "DISALLOW"
+-				]
+-		 }]
+-		},
+-		"CreateAuthUploads": {
+-			"Fn::Not" : [{
+-				"Fn::Equals" : [
+-					 {"Ref" : "s3PermissionsAuthenticatedUploads"},
+-					 "DISALLOW"
+-				]
+-		 }]
+-		},
+-		"CreateGuestPublic": {
+-			"Fn::Not" : [{
+-				"Fn::Equals" : [
+-					 {"Ref" : "s3PermissionsGuestPublic"},
+-					 "DISALLOW"
+-				]
+-		 }]
+-		},
+-		"CreateGuestUploads": {
+-			"Fn::Not" : [{
+-				"Fn::Equals" : [
+-					 {"Ref" : "s3PermissionsGuestUploads"},
+-					 "DISALLOW"
+-				]
+-		 }]
+-		},
+-		"AuthReadAndList": {
+-			"Fn::Not" : [{
+-				"Fn::Equals" : [
+-					 {"Ref" : "AuthenticatedAllowList"},
+-					 "DISALLOW"
+-				]
+-		 }]
+-		},
+-		"GuestReadAndList": {
+-			"Fn::Not" : [{
+-				"Fn::Equals" : [
+-					 {"Ref" : "GuestAllowList"},
+-					 "DISALLOW"
+-				]
+-		 }]
+-		}
+-	},
+-	"Resources": {
+-		"S3Bucket": {
+-			"Type": "AWS::S3::Bucket",
+-		    
+-			"DeletionPolicy" : "Retain",
+-			"Properties": {
+-				"BucketName": {
+-                    "Fn::If": [
+-                        "ShouldNotCreateEnvResources",
+-                        {
+-                            "Ref": "bucketName"
+-                        },
+-                        {
+-                            "Fn::Join": [
+-                                "",
+-                                [
+-                                    {
+-                                        "Ref": "bucketName"
+-                                    },
+-                                    {
+-                                      "Fn::Select": [
+-                                          3,
+-                                          {
+-                                              "Fn::Split": [
+-                                                  "-",
+-                                                  {
+-                                                      "Ref": "AWS::StackName"
+-                                                  }
+-                                              ]
+-                                          }
+-                                      ]
+-                                    },
+-                                    "-",
+-                                    {
+-                                        "Ref": "env"
+-                                    }
+-                                ]
+-                            ]
+-                        }
+-                    ]
+-                },
+-                
+-				"CorsConfiguration": {
+-					"CorsRules": [
+-						{
+-							"AllowedHeaders": [
+-								"*"
+-							],
+-							"AllowedMethods": [
+-								"GET",
+-								"HEAD",
+-								"PUT",
+-								"POST",
+-								"DELETE"
+-							],
+-							"AllowedOrigins": [
+-								"*"
+-							],
+-							"ExposedHeaders": [
+-								"x-amz-server-side-encryption",
+-								"x-amz-request-id",
+-								"x-amz-id-2",
+-								"ETag"
+-							],
+-							"Id": "S3CORSRuleId1",
+-							"MaxAge": "3000"
+-						}
+-					]
+-				}
+-			}
+-		},
+-      
+-	    
+-		"S3AuthPublicPolicy": {
+-			"DependsOn": [
+-				"S3Bucket"
+-			],
+-			"Condition": "CreateAuthPublic",
+-			"Type": "AWS::IAM::Policy",
+-			"Properties": {
+-				"PolicyName": {
+-					"Ref": "s3PublicPolicy"
+-				},
+-				"Roles": [
+-					{
+-						"Ref": "authRoleName"
+-					}
+-				],
+-				"PolicyDocument": {
+-					"Version": "2012-10-17",
+-					"Statement": [
+-						{
+-							"Effect": "Allow",
+-							"Action": {
+-								"Fn::Split" : [ "," , {
+-									"Ref": "s3PermissionsAuthenticatedPublic"
+-								} ]
+-							},
+-							"Resource": [
+-								{
+-									"Fn::Join": [
+-										"",
+-										[
+-											"arn:aws:s3:::",
+-											{
+-												"Ref": "S3Bucket"
+-											},
+-											"/public/*"
+-										]
+-									]
+-								}
+-							]
+-						}
+-					]
+-				}
+-			}
+-		},
+-		"S3AuthProtectedPolicy": {
+-			"DependsOn": [
+-				"S3Bucket"
+-			],
+-			"Condition": "CreateAuthProtected",
+-			"Type": "AWS::IAM::Policy",
+-			"Properties": {
+-				"PolicyName": {
+-					"Ref": "s3ProtectedPolicy"
+-				},
+-				"Roles": [
+-					{
+-						"Ref": "authRoleName"
+-					}
+-				],
+-				"PolicyDocument": {
+-					"Version": "2012-10-17",
+-					"Statement": [
+-						{
+-							"Effect": "Allow",
+-							"Action": {
+-								"Fn::Split" : [ "," , {
+-									"Ref": "s3PermissionsAuthenticatedProtected"
+-								} ]
+-							},
+-							"Resource": [
+-								{
+-									"Fn::Join": [
+-										"",
+-										[
+-											"arn:aws:s3:::",
+-											{
+-												"Ref": "S3Bucket"
+-											},
+-											"/protected/${cognito-identity.amazonaws.com:sub}/*"
+-										]
+-									]
+-								}
+-							]
+-						}
+-					]
+-				}
+-			}
+-		},
+-		"S3AuthPrivatePolicy": {
+-			"DependsOn": [
+-				"S3Bucket"
+-			],
+-			"Condition": "CreateAuthPrivate",
+-			"Type": "AWS::IAM::Policy",
+-			"Properties": {
+-				"PolicyName": {
+-					"Ref": "s3PrivatePolicy"
+-				},
+-				"Roles": [
+-					{
+-						"Ref": "authRoleName"
+-					}
+-				],
+-				"PolicyDocument": {
+-					"Version": "2012-10-17",
+-					"Statement": [
+-						{
+-							"Effect": "Allow",
+-							"Action": {
+-								"Fn::Split" : [ "," , {
+-									"Ref": "s3PermissionsAuthenticatedPrivate"
+-								} ]
+-							},
+-							"Resource": [
+-								{
+-									"Fn::Join": [
+-										"",
+-										[
+-											"arn:aws:s3:::",
+-											{
+-												"Ref": "S3Bucket"
+-											},
+-											"/private/${cognito-identity.amazonaws.com:sub}/*"
+-										]
+-									]
+-								}
+-							]
+-						}
+-					]
+-				}
+-			}
+-		},
+-		"S3AuthUploadPolicy": {
+-			"DependsOn": [
+-				"S3Bucket"
+-			],
+-			"Condition": "CreateAuthUploads",
+-			"Type": "AWS::IAM::Policy",
+-			"Properties": {
+-				"PolicyName": {
+-					"Ref": "s3UploadsPolicy"
+-				},
+-				"Roles": [
+-					{
+-						"Ref": "authRoleName"
+-					}
+-				],
+-				"PolicyDocument": {
+-					"Version": "2012-10-17",
+-					"Statement": [
+-						{
+-							"Effect": "Allow",
+-							"Action": {
+-								"Fn::Split" : [ "," , {
+-									"Ref": "s3PermissionsAuthenticatedUploads"
+-								} ]
+-							},
+-							"Resource": [
+-								{
+-									"Fn::Join": [
+-										"",
+-										[
+-											"arn:aws:s3:::",
+-											{
+-												"Ref": "S3Bucket"
+-											},
+-											"/uploads/*"
+-										]
+-									]
+-								}
+-							]
+-						}
+-					]
+-				}
+-			}
+-		},
+-		"S3AuthReadPolicy": {
+-			"DependsOn": [
+-				"S3Bucket"
+-			],
+-			"Condition": "AuthReadAndList",
+-			"Type": "AWS::IAM::Policy",
+-			"Properties": {
+-				"PolicyName": {
+-					"Ref": "s3ReadPolicy"
+-				},
+-				"Roles": [
+-					{
+-						"Ref": "authRoleName"
+-					}
+-				],
+-				"PolicyDocument": {
+-					"Version": "2012-10-17",
+-					"Statement": [
+-						{
+-							"Effect": "Allow",
+-							"Action": [
+-								"s3:GetObject"
+-							],
+-							"Resource": [
+-								{
+-									"Fn::Join": [
+-										"",
+-										[
+-											"arn:aws:s3:::",
+-											{
+-												"Ref": "S3Bucket"
+-											},
+-											"/protected/*"
+-										]
+-									]
+-								}
+-							]
+-						},
+-						{
+-							"Effect": "Allow",
+-							"Action": [
+-								"s3:ListBucket"
+-							],
+-							"Resource": [
+-								{
+-									"Fn::Join": [
+-										"",
+-										[
+-											"arn:aws:s3:::",
+-											{
+-												"Ref": "S3Bucket"
+-											}
+-										]
+-									]
+-								}
+-							],
+-							"Condition": {
+-								"StringLike": {
+-									"s3:prefix": [
+-										"public/",
+-										"public/*",
+-										"protected/",
+-										"protected/*",
+-										"private/${cognito-identity.amazonaws.com:sub}/",
+-										"private/${cognito-identity.amazonaws.com:sub}/*"
+-									]
+-								}
+-							}
+-						}
+-					]
+-				}
+-			}
+-		},
+-		"S3GuestPublicPolicy": {
+-			"DependsOn": [
+-				"S3Bucket"
+-			],
+-			"Condition": "CreateGuestPublic",
+-			"Type": "AWS::IAM::Policy",
+-			"Properties": {
+-				"PolicyName": {
+-					"Ref": "s3PublicPolicy"
+-				},
+-				"Roles": [
+-					{
+-						"Ref": "unauthRoleName"
+-					}
+-				],
+-				"PolicyDocument": {
+-					"Version": "2012-10-17",
+-					"Statement": [
+-						{
+-							"Effect": "Allow",
+-							"Action": {
+-								"Fn::Split" : [ "," , {
+-									"Ref": "s3PermissionsGuestPublic"
+-								} ]
+-							},
+-							"Resource": [
+-								{
+-									"Fn::Join": [
+-										"",
+-										[
+-											"arn:aws:s3:::",
+-											{
+-												"Ref": "S3Bucket"
+-											},
+-											"/public/*"
+-										]
+-									]
+-								}
+-							]
+-						}
+-					]
+-				}
+-			}
+-		},
+-		"S3GuestUploadPolicy": {
+-			"DependsOn": [
+-				"S3Bucket"
+-			],
+-			"Condition": "CreateGuestUploads",
+-			"Type": "AWS::IAM::Policy",
+-			"Properties": {
+-				"PolicyName": {
+-					"Ref": "s3UploadsPolicy"
+-				},
+-				"Roles": [
+-					{
+-						"Ref": "unauthRoleName"
+-					}
+-				],
+-				"PolicyDocument": {
+-					"Version": "2012-10-17",
+-					"Statement": [
+-						{
+-							"Effect": "Allow",
+-							"Action": {
+-								"Fn::Split" : [ "," , {
+-									"Ref": "s3PermissionsGuestUploads"
+-								} ]
+-							},
+-							"Resource": [
+-								{
+-									"Fn::Join": [
+-										"",
+-										[
+-											"arn:aws:s3:::",
+-											{
+-												"Ref": "S3Bucket"
+-											},
+-											"/uploads/*"
+-										]
+-									]
+-								}
+-							]
+-						}
+-					]
+-				}
+-			}
+-		},
+-		"S3GuestReadPolicy": {
+-			"DependsOn": [
+-				"S3Bucket"
+-			],
+-			"Condition": "GuestReadAndList",
+-			"Type": "AWS::IAM::Policy",
+-			"Properties": {
+-				"PolicyName": {
+-					"Ref": "s3ReadPolicy"
+-				},
+-				"Roles": [
+-					{
+-						"Ref": "unauthRoleName"
+-					}
+-				],
+-				"PolicyDocument": {
+-					"Version": "2012-10-17",
+-					"Statement": [
+-						{
+-							"Effect": "Allow",
+-							"Action": [
+-								"s3:GetObject"
+-							],
+-							"Resource": [
+-								{
+-									"Fn::Join": [
+-										"",
+-										[
+-											"arn:aws:s3:::",
+-											{
+-												"Ref": "S3Bucket"
+-											},
+-											"/protected/*"
+-										]
+-									]
+-								}
+-							]
+-						},
+-						{
+-							"Effect": "Allow",
+-							"Action": [
+-								"s3:ListBucket"
+-							],
+-							"Resource": [
+-								{
+-									"Fn::Join": [
+-										"",
+-										[
+-											"arn:aws:s3:::",
+-											{
+-												"Ref": "S3Bucket"
+-											}
+-										]
+-									]
+-								}
+-							],
+-							"Condition": {
+-								"StringLike": {
+-									"s3:prefix": [
+-										"public/",
+-										"public/*",
+-										"protected/",
+-										"protected/*"
+-									]
+-								}
+-							}
+-						}
+-					]
+-				}
+-			}
+-		}
+-	},
+-	"Outputs": {
+-		"BucketName": {
+-			"Value": {
+-				"Ref": "S3Bucket"
+-			},
+-			"Description": "Bucket name for the S3 bucket"
+-		},
+-		"Region": {
+-			"Value": {
+-				"Ref": "AWS::Region"
+-			}
+-		}
+-	}
+-}
+Index: amplify/backend/auth/taskmaster556d444a/parameters.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{\r\n    \"identityPoolName\": \"taskmaster556d444a_identitypool_556d444a\",\r\n    \"allowUnauthenticatedIdentities\": false,\r\n    \"resourceNameTruncated\": \"taskma556d444a\",\r\n    \"userPoolName\": \"taskmaster556d444a_userpool_556d444a\",\r\n    \"autoVerifiedAttributes\": [\r\n        \"email\"\r\n    ],\r\n    \"mfaConfiguration\": \"OFF\",\r\n    \"mfaTypes\": [\r\n        \"SMS Text Message\"\r\n    ],\r\n    \"smsAuthenticationMessage\": \"Your authentication code is {####}\",\r\n    \"smsVerificationMessage\": \"Your verification code is {####}\",\r\n    \"emailVerificationSubject\": \"Your verification code\",\r\n    \"emailVerificationMessage\": \"Your verification code is {####}\",\r\n    \"defaultPasswordPolicy\": false,\r\n    \"passwordPolicyMinLength\": 8,\r\n    \"passwordPolicyCharacters\": [],\r\n    \"requiredAttributes\": [\r\n        \"email\"\r\n    ],\r\n    \"userpoolClientGenerateSecret\": false,\r\n    \"userpoolClientRefreshTokenValidity\": 30,\r\n    \"userpoolClientWriteAttributes\": [\r\n        \"email\"\r\n    ],\r\n    \"userpoolClientReadAttributes\": [\r\n        \"email\"\r\n    ],\r\n    \"userpoolClientLambdaRole\": \"taskma556d444a_userpoolclient_lambda_role\",\r\n    \"userpoolClientSetAttributes\": false,\r\n    \"sharedId\": \"556d444a\",\r\n    \"resourceName\": \"taskmaster556d444a\",\r\n    \"authSelections\": \"identityPoolAndUserPool\",\r\n    \"authRoleArn\": {\r\n        \"Fn::GetAtt\": [\r\n            \"AuthRole\",\r\n            \"Arn\"\r\n        ]\r\n    },\r\n    \"unauthRoleArn\": {\r\n        \"Fn::GetAtt\": [\r\n            \"UnauthRole\",\r\n            \"Arn\"\r\n        ]\r\n    },\r\n    \"useDefault\": \"defaultSocial\",\r\n    \"userPoolGroupList\": [],\r\n    \"serviceName\": \"Cognito\",\r\n    \"usernameCaseSensitive\": false,\r\n    \"dependsOn\": [],\r\n    \"hostedUI\": true,\r\n    \"hostedUIDomainName\": \"taskmaster00794328-00794328\",\r\n    \"authProvidersUserPool\": [],\r\n    \"hostedUIProviderMeta\": \"[]\",\r\n    \"oAuthMetadata\": \"{\\\"AllowedOAuthFlows\\\":[\\\"code\\\"],\\\"AllowedOAuthScopes\\\":[\\\"phone\\\",\\\"email\\\",\\\"openid\\\",\\\"profile\\\",\\\"aws.cognito.signin.user.admin\\\"],\\\"CallbackURLs\\\":[\\\"myapp://callback/\\\"],\\\"LogoutURLs\\\":[\\\"myapp://signout/\\\"]}\",\r\n    \"authProviders\": []\r\n}
+===================================================================
+--- amplify/backend/auth/taskmaster556d444a/parameters.json	(revision 70341eea1ec62f01ed4c345aa2ac8154d7275edf)
++++ amplify/backend/auth/taskmaster556d444a/parameters.json	(date 1623156077168)
+@@ -45,15 +45,11 @@
+             "Arn"
+         ]
+     },
+-    "useDefault": "defaultSocial",
++    "useDefault": "default",
+     "userPoolGroupList": [],
+     "serviceName": "Cognito",
+     "usernameCaseSensitive": false,
+     "dependsOn": [],
+     "hostedUI": true,
+-    "hostedUIDomainName": "taskmaster00794328-00794328",
+-    "authProvidersUserPool": [],
+-    "hostedUIProviderMeta": "[]",
+-    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"myapp://callback/\"],\"LogoutURLs\":[\"myapp://signout/\"]}",
+     "authProviders": []
+ }
+\ No newline at end of file
+Index: amplify/backend/auth/taskmaster556d444a/taskmaster556d444a-cloudformation-template.yml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>AWSTemplateFormatVersion: 2010-09-09\r\n\r\nParameters:\r\n  env:\r\n    Type: String\r\n  authRoleArn:\r\n    Type: String\r\n  unauthRoleArn:\r\n    Type: String\r\n\r\n  \r\n\r\n    \r\n  identityPoolName:\r\n    Type: String\r\n  \r\n            \r\n  \r\n  allowUnauthenticatedIdentities:\r\n    Type: String\r\n            \r\n  resourceNameTruncated:\r\n    Type: String\r\n  \r\n            \r\n  userPoolName:\r\n    Type: String\r\n  \r\n            \r\n        \r\n  autoVerifiedAttributes:\r\n    Type: CommaDelimitedList\r\n      \r\n  mfaConfiguration:\r\n    Type: String\r\n  \r\n            \r\n        \r\n  mfaTypes:\r\n    Type: CommaDelimitedList\r\n      \r\n  smsAuthenticationMessage:\r\n    Type: String\r\n  \r\n            \r\n  smsVerificationMessage:\r\n    Type: String\r\n  \r\n            \r\n  emailVerificationSubject:\r\n    Type: String\r\n  \r\n            \r\n  emailVerificationMessage:\r\n    Type: String\r\n  \r\n            \r\n  \r\n  defaultPasswordPolicy:\r\n    Type: String\r\n            \r\n    \r\n  passwordPolicyMinLength:\r\n    Type: Number\r\n          \r\n        \r\n  passwordPolicyCharacters:\r\n    Type: CommaDelimitedList\r\n      \r\n        \r\n  requiredAttributes:\r\n    Type: CommaDelimitedList\r\n      \r\n  \r\n  userpoolClientGenerateSecret:\r\n    Type: String\r\n            \r\n    \r\n  userpoolClientRefreshTokenValidity:\r\n    Type: Number\r\n          \r\n        \r\n  userpoolClientWriteAttributes:\r\n    Type: CommaDelimitedList\r\n      \r\n        \r\n  userpoolClientReadAttributes:\r\n    Type: CommaDelimitedList\r\n      \r\n  userpoolClientLambdaRole:\r\n    Type: String\r\n  \r\n            \r\n  \r\n  userpoolClientSetAttributes:\r\n    Type: String\r\n            \r\n  sharedId:\r\n    Type: String\r\n  \r\n            \r\n  resourceName:\r\n    Type: String\r\n  \r\n            \r\n  authSelections:\r\n    Type: String\r\n  \r\n            \r\n            \r\n            \r\n  useDefault:\r\n    Type: String\r\n  \r\n            \r\n        \r\n  userPoolGroupList:\r\n    Type: CommaDelimitedList\r\n      \r\n  serviceName:\r\n    Type: String\r\n  \r\n            \r\n  \r\n  usernameCaseSensitive:\r\n    Type: String\r\n            \r\n        \r\n  dependsOn:\r\n    Type: CommaDelimitedList\r\n      \r\n  \r\n  hostedUI:\r\n    Type: String\r\n            \r\n  hostedUIProviderCreds:\r\n    Type: String\r\n  \r\n            \r\n  hostedUIDomainName:\r\n    Type: String\r\n  \r\n            \r\n        \r\n  authProvidersUserPool:\r\n    Type: CommaDelimitedList\r\n      \r\n  hostedUIProviderMeta:\r\n    Type: String\r\n  \r\n            \r\n  oAuthMetadata:\r\n    Type: String\r\n  \r\n            \r\n            \r\n        \r\n  authProviders:\r\n    Type: CommaDelimitedList\r\n      \r\nConditions:\r\n  ShouldNotCreateEnvResources: !Equals [ !Ref env, NONE ]\r\n  \r\n  ShouldOutputAppClientSecrets: !Equals [!Ref userpoolClientGenerateSecret, true ]\r\n  \r\n\r\nResources:\r\n  \r\n  \r\n  # BEGIN SNS ROLE RESOURCE\r\n  SNSRole:\r\n  # Created to allow the UserPool SMS Config to publish via the Simple Notification Service during MFA Process\r\n    Type: AWS::IAM::Role\r\n    Properties:\r\n      RoleName: !If [ShouldNotCreateEnvResources, 'taskma556d444a_sns-role', !Join ['',[ 'sns', '556d444a', !Select [3, !Split ['-', !Ref 'AWS::StackName']], '-', !Ref env]]]\r\n      AssumeRolePolicyDocument:\r\n        Version: \"2012-10-17\"\r\n        Statement:\r\n          - Sid: \"\"\r\n            Effect: \"Allow\"\r\n            Principal:\r\n              Service: \"cognito-idp.amazonaws.com\"\r\n            Action:\r\n              - \"sts:AssumeRole\"\r\n            Condition:\r\n              StringEquals:\r\n                sts:ExternalId: taskma556d444a_role_external_id\r\n      Policies:\r\n        -\r\n          PolicyName: taskma556d444a-sns-policy\r\n          PolicyDocument:\r\n            Version: \"2012-10-17\"\r\n            Statement:\r\n              -\r\n                Effect: \"Allow\"\r\n                Action:\r\n                  - \"sns:Publish\"\r\n                Resource: \"*\"\r\n  # BEGIN USER POOL RESOURCES\r\n  UserPool:\r\n  # Created upon user selection\r\n  # Depends on SNS Role for Arn if MFA is enabled\r\n    Type: AWS::Cognito::UserPool\r\n    UpdateReplacePolicy: Retain\r\n    Properties:\r\n      UserPoolName: !If [ShouldNotCreateEnvResources, !Ref userPoolName, !Join ['',[!Ref userPoolName, '-', !Ref env]]]\r\n      \r\n      \r\n      UsernameConfiguration:\r\n        CaseSensitive: false\r\n      \r\n      Schema:\r\n        \r\n        -\r\n          Name: email\r\n          Required: true\r\n          Mutable: true\r\n        \r\n      \r\n      \r\n      \r\n      AutoVerifiedAttributes: !Ref autoVerifiedAttributes\r\n      \r\n      \r\n      EmailVerificationMessage: !Ref emailVerificationMessage\r\n      EmailVerificationSubject: !Ref emailVerificationSubject\r\n      \r\n      Policies:\r\n        PasswordPolicy:\r\n          MinimumLength: !Ref passwordPolicyMinLength\r\n          RequireLowercase: false\r\n          RequireNumbers: false\r\n          RequireSymbols: false\r\n          RequireUppercase: false\r\n      \r\n      MfaConfiguration: !Ref mfaConfiguration\r\n      SmsVerificationMessage: !Ref smsVerificationMessage\r\n      SmsAuthenticationMessage: !Ref smsAuthenticationMessage\r\n      SmsConfiguration:\r\n        SnsCallerArn: !GetAtt SNSRole.Arn\r\n        ExternalId: taskma556d444a_role_external_id\r\n    \r\n  \r\n  UserPoolClientWeb:\r\n  # Created provide application access to user pool\r\n  # Depends on UserPool for ID reference\r\n    Type: \"AWS::Cognito::UserPoolClient\"\r\n    Properties:\r\n      ClientName: taskma556d444a_app_clientWeb\r\n      \r\n      RefreshTokenValidity: !Ref userpoolClientRefreshTokenValidity\r\n      UserPoolId: !Ref UserPool\r\n    DependsOn: UserPool\r\n  UserPoolClient:\r\n  # Created provide application access to user pool\r\n  # Depends on UserPool for ID reference\r\n    Type: \"AWS::Cognito::UserPoolClient\"\r\n    Properties:\r\n      ClientName: taskma556d444a_app_client\r\n      \r\n      GenerateSecret: !Ref userpoolClientGenerateSecret\r\n      RefreshTokenValidity: !Ref userpoolClientRefreshTokenValidity\r\n      UserPoolId: !Ref UserPool\r\n    DependsOn: UserPool\r\n  # BEGIN USER POOL LAMBDA RESOURCES\r\n  UserPoolClientRole:\r\n  # Created to execute Lambda which gets userpool app client config values\r\n    Type: 'AWS::IAM::Role'\r\n    Properties:\r\n      RoleName: !If [ShouldNotCreateEnvResources, !Ref userpoolClientLambdaRole, !Join ['',['upClientLambdaRole', '556d444a', !Select [3, !Split ['-', !Ref 'AWS::StackName']], '-', !Ref env]]]\r\n      AssumeRolePolicyDocument:\r\n        Version: '2012-10-17'\r\n        Statement:\r\n          - Effect: Allow\r\n            Principal:\r\n              Service:\r\n                - lambda.amazonaws.com\r\n            Action:\r\n              - 'sts:AssumeRole'\r\n    DependsOn: UserPoolClient\r\n  UserPoolClientLambda:\r\n  # Lambda which gets userpool app client config values\r\n  # Depends on UserPool for id\r\n  # Depends on UserPoolClientRole for role ARN\r\n    Type: 'AWS::Lambda::Function'\r\n    Properties:\r\n      Code:\r\n        ZipFile: !Join\r\n          - |+\r\n          - - 'const response = require(''cfn-response'');'\r\n            - 'const aws = require(''aws-sdk'');'\r\n            - 'const identity = new aws.CognitoIdentityServiceProvider();'\r\n            - 'exports.handler = (event, context, callback) => {'\r\n            - ' if (event.RequestType == ''Delete'') { '\r\n            - '   response.send(event, context, response.SUCCESS, {})'\r\n            - ' }'\r\n            - ' if (event.RequestType == ''Update'' || event.RequestType == ''Create'') {'\r\n            - '   const params = {'\r\n            - '     ClientId: event.ResourceProperties.clientId,'\r\n            - '     UserPoolId: event.ResourceProperties.userpoolId'\r\n            - '   };'\r\n            - '   identity.describeUserPoolClient(params).promise()'\r\n            - '     .then((res) => {'\r\n            - '       response.send(event, context, response.SUCCESS, {''appSecret'': res.UserPoolClient.ClientSecret});'\r\n            - '     })'\r\n            - '     .catch((err) => {'\r\n            - '       response.send(event, context, response.FAILED, {err});'\r\n            - '     });'\r\n            - ' }'\r\n            - '};'\r\n      Handler: index.handler\r\n      Runtime: nodejs12.x\r\n      Timeout: '300'\r\n      Role: !GetAtt\r\n        - UserPoolClientRole\r\n        - Arn\r\n    DependsOn: UserPoolClientRole\r\n  UserPoolClientLambdaPolicy:\r\n  # Sets userpool policy for the role that executes the Userpool Client Lambda\r\n  # Depends on UserPool for Arn\r\n  # Marked as depending on UserPoolClientRole for easier to understand CFN sequencing\r\n    Type: 'AWS::IAM::Policy'\r\n    Properties:\r\n      PolicyName: taskma556d444a_userpoolclient_lambda_iam_policy\r\n      Roles:\r\n        - !Ref UserPoolClientRole\r\n      PolicyDocument:\r\n        Version: '2012-10-17'\r\n        Statement:\r\n          - Effect: Allow\r\n            Action:\r\n              - 'cognito-idp:DescribeUserPoolClient'\r\n            Resource: !GetAtt UserPool.Arn\r\n    DependsOn: UserPoolClientLambda\r\n  UserPoolClientLogPolicy:\r\n  # Sets log policy for the role that executes the Userpool Client Lambda\r\n  # Depends on UserPool for Arn\r\n  # Marked as depending on UserPoolClientLambdaPolicy for easier to understand CFN sequencing\r\n    Type: 'AWS::IAM::Policy'\r\n    Properties:\r\n      PolicyName: taskma556d444a_userpoolclient_lambda_log_policy\r\n      Roles:\r\n        - !Ref UserPoolClientRole\r\n      PolicyDocument:\r\n        Version: 2012-10-17\r\n        Statement:\r\n          - Effect: Allow\r\n            Action:\r\n              - 'logs:CreateLogGroup'\r\n              - 'logs:CreateLogStream'\r\n              - 'logs:PutLogEvents'\r\n            Resource: !Sub\r\n              - arn:aws:logs:${region}:${account}:log-group:/aws/lambda/${lambda}:log-stream:*\r\n              - { region: !Ref \"AWS::Region\",  account: !Ref \"AWS::AccountId\", lambda: !Ref UserPoolClientLambda}\r\n    DependsOn: UserPoolClientLambdaPolicy\r\n  UserPoolClientInputs:\r\n  # Values passed to Userpool client Lambda\r\n  # Depends on UserPool for Id\r\n  # Depends on UserPoolClient for Id\r\n  # Marked as depending on UserPoolClientLambdaPolicy for easier to understand CFN sequencing\r\n    Type: 'Custom::LambdaCallout'\r\n    Properties:\r\n      ServiceToken: !GetAtt UserPoolClientLambda.Arn\r\n      clientId: !Ref UserPoolClient\r\n      userpoolId: !Ref UserPool\r\n    DependsOn: UserPoolClientLogPolicy\r\n  \r\n  HostedUICustomResource:\r\n    Type: 'AWS::Lambda::Function'\r\n    Properties:\r\n      Code:\r\n        ZipFile: !Join\r\n          - |+\r\n          - - 'const response = require(''cfn-response'');'\r\n            - 'const aws = require(''aws-sdk'');'\r\n            - 'const identity = new aws.CognitoIdentityServiceProvider();'\r\n            - 'exports.handler = (event, context, callback) => {'\r\n            - ' const userPoolId = event.ResourceProperties.userPoolId;'\r\n            - ' const inputDomainName = event.ResourceProperties.hostedUIDomainName;'\r\n            - ' let deleteUserPoolDomain = (domainName) => {'\r\n            - '   let params = { Domain: domainName, UserPoolId: userPoolId };'\r\n            - '   return identity.deleteUserPoolDomain(params).promise();'\r\n            - ' };'\r\n            - ' if (event.RequestType == ''Delete'') {'\r\n            - '   deleteUserPoolDomain(inputDomainName)'\r\n            - '   .then(() => {response.send(event, context, response.SUCCESS, {})})'\r\n            - '   .catch((err) => { console.log(err); response.send(event, context, response.FAILED, {err}) });'\r\n            - ' }'\r\n            - ' if (event.RequestType == ''Update'' || event.RequestType == ''Create'') {'\r\n            - '  let checkDomainAvailability = (domainName) => {'\r\n            - '  let params = { Domain: domainName };'\r\n            - '  return identity.describeUserPoolDomain(params).promise().then((res) => {'\r\n            - '   if (res.DomainDescription && res.DomainDescription.UserPool) {'\r\n            - '    return false;'\r\n            - '   }'\r\n            - '   return true;'\r\n            - '   }).catch((err) => { return false; });'\r\n            - ' };'\r\n            - ' let createUserPoolDomain = (domainName) => {'\r\n            - '  let params = { Domain: domainName, UserPoolId: userPoolId };'\r\n            - '   return identity.createUserPoolDomain(params).promise();'\r\n            - ' };'\r\n            - ' identity.describeUserPool({UserPoolId: userPoolId }).promise().then((result) => {'\r\n            - '  if (inputDomainName) {'\r\n            - '   if (result.UserPool.Domain === inputDomainName) {'\r\n            - '    return;'\r\n            - '    } else {'\r\n            - '       if (!result.UserPool.Domain) {'\r\n            - '         return checkDomainAvailability(inputDomainName).then((isDomainAvailable) => {'\r\n            - '           if (isDomainAvailable) {'\r\n            - '             return createUserPoolDomain(inputDomainName);'\r\n            - '           } else {'\r\n            - '               throw new Error(''Domain not available'');'\r\n            - '           }'\r\n            - '         });'\r\n            - '       } else {'\r\n            - '           return checkDomainAvailability(inputDomainName).then((isDomainAvailable) => {'\r\n            - '             if (isDomainAvailable) {'\r\n            - '               return deleteUserPoolDomain(result.UserPool.Domain).then(() => createUserPoolDomain(inputDomainName));'\r\n            - '             } else {'\r\n            - '                 throw new Error(''Domain not available'');'\r\n            - '             }'\r\n            - '           });'\r\n            - '       }'\r\n            - '     }'\r\n            - '   } else {'\r\n            - '       if (result.UserPool.Domain) {'\r\n            - '         return deleteUserPoolDomain(result.UserPool.Domain);'\r\n            - '       }'\r\n            - '   }'\r\n            - ' }).then(() => {response.send(event, context, response.SUCCESS, {})}).catch((err) => {'\r\n            - ' console.log(err);  response.send(event, context, response.FAILED, {err});'\r\n            - ' });'\r\n            - '}}'\r\n\r\n\r\n      Handler: index.handler\r\n      Runtime: nodejs12.x\r\n      Timeout: '300'\r\n      Role: !GetAtt\r\n        - UserPoolClientRole\r\n        - Arn\r\n    DependsOn: UserPoolClientRole\r\n\r\n  HostedUICustomResourcePolicy:\r\n    Type: 'AWS::IAM::Policy'\r\n    Properties:\r\n      PolicyName: !Join ['-',[!Ref UserPool, 'hostedUI']]\r\n      Roles:\r\n        - !Ref UserPoolClientRole\r\n      PolicyDocument:\r\n        Version: '2012-10-17'\r\n        Statement:\r\n          - Effect: Allow\r\n            Action:\r\n              - 'cognito-idp:CreateUserPoolDomain'\r\n              - 'cognito-idp:DescribeUserPool'\r\n              - 'cognito-idp:DeleteUserPoolDomain'\r\n            Resource: !GetAtt UserPool.Arn\r\n          - Effect: Allow\r\n            Action:\r\n              - 'cognito-idp:DescribeUserPoolDomain'\r\n            Resource: '*'\r\n    DependsOn: HostedUICustomResource\r\n  HostedUICustomResourceLogPolicy:\r\n    Type: 'AWS::IAM::Policy'\r\n    Properties:\r\n      PolicyName: !Join ['-',[!Ref UserPool, 'hostedUILogPolicy']]\r\n      Roles:\r\n        - !Ref UserPoolClientRole\r\n      PolicyDocument:\r\n        Version: 2012-10-17\r\n        Statement:\r\n          - Effect: Allow\r\n            Action:\r\n              - 'logs:CreateLogGroup'\r\n              - 'logs:CreateLogStream'\r\n              - 'logs:PutLogEvents'\r\n            Resource: !Sub\r\n              - arn:aws:logs:${region}:${account}:log-group:/aws/lambda/${lambda}:log-stream:*\r\n              - { region: !Ref \"AWS::Region\",  account: !Ref \"AWS::AccountId\", lambda: !Ref HostedUICustomResource}\r\n    DependsOn: HostedUICustomResourcePolicy\r\n  HostedUICustomResourceInputs:\r\n    Type: 'Custom::LambdaCallout'\r\n    Properties:\r\n      ServiceToken: !GetAtt HostedUICustomResource.Arn\r\n      userPoolId: !Ref UserPool\r\n      hostedUIDomainName: !If [ShouldNotCreateEnvResources, !Ref hostedUIDomainName, !Join ['-',[!Ref hostedUIDomainName, !Ref env]]]\r\n    DependsOn: HostedUICustomResourceLogPolicy\r\n  \r\n\r\n  \r\n  HostedUIProvidersCustomResource:\r\n    Type: 'AWS::Lambda::Function'\r\n    Properties:\r\n      Code:\r\n        ZipFile: !Join\r\n          - |+\r\n          - - 'const response = require(''cfn-response'');'\r\n            - 'const aws = require(''aws-sdk'');'\r\n            - 'const identity = new aws.CognitoIdentityServiceProvider();'\r\n            - 'exports.handler = (event, context, callback) => {'\r\n            - 'try{'\r\n            - ' const userPoolId = event.ResourceProperties.userPoolId;'\r\n            - ' let hostedUIProviderMeta = JSON.parse(event.ResourceProperties.hostedUIProviderMeta);'\r\n            - ' let hostedUIProviderCreds = JSON.parse(event.ResourceProperties.hostedUIProviderCreds);'\r\n            - ' if(hostedUIProviderCreds.length === 0) {'\r\n            - '  response.send(event, context, response.SUCCESS, {});'\r\n            - ' }'\r\n            - ' if (event.RequestType == ''Delete'') {'\r\n            - '  response.send(event, context, response.SUCCESS, {});'\r\n            - ' }'\r\n            - ' if (event.RequestType == ''Update'' || event.RequestType == ''Create'') {'\r\n            - '  let getRequestParams = (providerName) => {'\r\n            - '   let providerMetaIndex = hostedUIProviderMeta.findIndex((provider) => provider.ProviderName === providerName);'\r\n            - '   let providerMeta =  hostedUIProviderMeta[providerMetaIndex];'\r\n            - '   let providerCredsIndex = hostedUIProviderCreds.findIndex((provider) => provider.ProviderName === providerName);'\r\n            - '   let providerCreds = hostedUIProviderCreds[providerCredsIndex];'\r\n            - '   let requestParams = {'\r\n            - '    ProviderDetails: {'\r\n            - '     ''client_id'': providerCreds.client_id,'\r\n            - '     ''client_secret'': providerCreds.client_secret,'\r\n            - '     ''authorize_scopes'': providerMeta.authorize_scopes'\r\n            - '    },'\r\n            - '    ProviderName: providerMeta.ProviderName,'\r\n            - '    UserPoolId: userPoolId,'\r\n            - '    AttributeMapping: providerMeta.AttributeMapping'\r\n            - '   };'\r\n            - '   return requestParams;'\r\n            - '  };'\r\n            - '  let createIdentityProvider = (providerName) => {'\r\n            - '   let requestParams = getRequestParams(providerName);'\r\n            - '   requestParams.ProviderType = requestParams.ProviderName;'\r\n            - '   return identity.createIdentityProvider(requestParams).promise();'\r\n            - '  };'\r\n            - '  let updateIdentityProvider = (providerName) => {'\r\n            - '   let requestParams = getRequestParams(providerName);'\r\n            - '   return identity.updateIdentityProvider(requestParams).promise();'\r\n            - '  };'\r\n            - '  let deleteIdentityProvider = (providerName) => {'\r\n            - '   let params = {ProviderName: providerName, UserPoolId: userPoolId};'\r\n            - '   return identity.deleteIdentityProvider(params).promise();'\r\n            - '  };'\r\n            - '  let providerPromises = [];'\r\n            - '  identity.listIdentityProviders({UserPoolId: userPoolId, MaxResults: 60}).promise()'\r\n            - '  .then((result) => {'\r\n            - '   let providerList = result.Providers.map(provider => provider.ProviderName);'\r\n            - '   let providerListInParameters = hostedUIProviderMeta.map(provider => provider.ProviderName);'\r\n            - '   hostedUIProviderMeta.forEach((providerMetadata) => {'\r\n            - '    if(providerList.indexOf(providerMetadata.ProviderName) > -1) {'\r\n            - '     providerPromises.push(updateIdentityProvider(providerMetadata.ProviderName));'\r\n            - '    } else {'\r\n            - '     providerPromises.push(createIdentityProvider(providerMetadata.ProviderName));'\r\n            - '    }'\r\n            - '  });'\r\n            - '  providerList.forEach((provider) => {'\r\n            - '   if(providerListInParameters.indexOf(provider) < 0) {'\r\n            - '    providerPromises.push(deleteIdentityProvider(provider));'\r\n            - '   }'\r\n            - '  });'\r\n            - '  return Promise.all(providerPromises);'\r\n            - ' }).then(() => {response.send(event, context, response.SUCCESS, {})}).catch((err) => {'\r\n            - '   console.log(err.stack); response.send(event, context, response.FAILED, {err})'\r\n            - ' });'\r\n            - ' } '\r\n            - ' } catch(err) { console.log(err.stack); response.send(event, context, response.FAILED, {err});};'\r\n            - '} '\r\n\r\n      Handler: index.handler\r\n      Runtime: nodejs12.x\r\n      Timeout: '300'\r\n      Role: !GetAtt\r\n        - UserPoolClientRole\r\n        - Arn\r\n    DependsOn: UserPoolClientRole\r\n\r\n  HostedUIProvidersCustomResourcePolicy:\r\n    Type: 'AWS::IAM::Policy'\r\n    Properties:\r\n      PolicyName: !Join ['-',[!Ref UserPool, 'hostedUIProvider']]\r\n      Roles:\r\n        - !Ref UserPoolClientRole\r\n      PolicyDocument:\r\n        Version: '2012-10-17'\r\n        Statement:\r\n          - Effect: Allow\r\n            Action:\r\n              - 'cognito-idp:CreateIdentityProvider'\r\n              - 'cognito-idp:UpdateIdentityProvider'\r\n              - 'cognito-idp:ListIdentityProviders'\r\n              - 'cognito-idp:DeleteIdentityProvider'\r\n            Resource: !GetAtt UserPool.Arn\r\n    DependsOn: HostedUIProvidersCustomResource\r\n\r\n  HostedUIProvidersCustomResourceLogPolicy:\r\n    Type: 'AWS::IAM::Policy'\r\n    Properties:\r\n      PolicyName: !Join ['-',[!Ref UserPool, 'hostedUIProviderLogPolicy']]\r\n      Roles:\r\n        - !Ref UserPoolClientRole\r\n      PolicyDocument:\r\n        Version: 2012-10-17\r\n        Statement:\r\n          - Effect: Allow\r\n            Action:\r\n              - 'logs:CreateLogGroup'\r\n              - 'logs:CreateLogStream'\r\n              - 'logs:PutLogEvents'\r\n            Resource: !Sub\r\n              - arn:aws:logs:${region}:${account}:log-group:/aws/lambda/${lambda}:log-stream:*\r\n              - { region: !Ref \"AWS::Region\",  account: !Ref \"AWS::AccountId\", lambda: !Ref HostedUIProvidersCustomResource}\r\n    DependsOn: HostedUIProvidersCustomResourcePolicy\r\n\r\n  HostedUIProvidersCustomResourceInputs:\r\n    Type: 'Custom::LambdaCallout'\r\n    Properties:\r\n      ServiceToken: !GetAtt HostedUIProvidersCustomResource.Arn\r\n      userPoolId: !Ref UserPool\r\n      hostedUIProviderMeta: !Ref hostedUIProviderMeta\r\n      hostedUIProviderCreds: !Ref hostedUIProviderCreds\r\n    DependsOn: HostedUIProvidersCustomResourceLogPolicy\r\n  \r\n  \r\n  OAuthCustomResource:\r\n    Type: 'AWS::Lambda::Function'\r\n    Properties:\r\n      Code:\r\n        ZipFile: !Join\r\n          - |+\r\n          - - 'const response = require(''cfn-response'');'\r\n            - 'const aws = require(''aws-sdk'');'\r\n            - 'const identity = new aws.CognitoIdentityServiceProvider();'\r\n            - 'exports.handler = (event, context, callback) => {'\r\n            - 'try{'\r\n            - ' const userPoolId = event.ResourceProperties.userPoolId;'\r\n            - ' let webClientId = event.ResourceProperties.webClientId;'\r\n            - ' let nativeClientId = event.ResourceProperties.nativeClientId;'\r\n            - ' let hostedUIProviderMeta = JSON.parse(event.ResourceProperties.hostedUIProviderMeta);'\r\n            - ' let oAuthMetadata = JSON.parse(event.ResourceProperties.oAuthMetadata);'\r\n            - ' let providerList = hostedUIProviderMeta.map(provider => provider.ProviderName);'\r\n            - ' providerList.push(''COGNITO'');'\r\n            - ' if (event.RequestType == ''Delete'') {'\r\n            - '  response.send(event, context, response.SUCCESS, {});'\r\n            - ' }'\r\n            - ' if (event.RequestType == ''Update'' || event.RequestType == ''Create'') {'\r\n            - '  let params = {'\r\n            - '   UserPoolId: userPoolId,'\r\n            - '   AllowedOAuthFlows: oAuthMetadata.AllowedOAuthFlows,'\r\n            - '   AllowedOAuthFlowsUserPoolClient: true,'\r\n            - '   AllowedOAuthScopes: oAuthMetadata.AllowedOAuthScopes,'\r\n            - '   CallbackURLs: oAuthMetadata.CallbackURLs,'\r\n            - '   LogoutURLs: oAuthMetadata.LogoutURLs,'\r\n            - '   SupportedIdentityProviders: providerList'\r\n            - '  };'\r\n            - '  let updateUserPoolClientPromises = [];'\r\n            - '  params.ClientId = webClientId;'\r\n            - '  updateUserPoolClientPromises.push(identity.updateUserPoolClient(params).promise());'\r\n            - '  params.ClientId = nativeClientId;'\r\n            - '  updateUserPoolClientPromises.push(identity.updateUserPoolClient(params).promise());'\r\n            - '  Promise.all(updateUserPoolClientPromises)'\r\n            - '  .then(() => {response.send(event, context, response.SUCCESS, {})}).catch((err) => {'\r\n            - '    console.log(err.stack); response.send(event, context, response.FAILED, {err});'\r\n            - '  });'\r\n            - ' }'\r\n            - '} catch(err) { console.log(err.stack); response.send(event, context, response.FAILED, {err});};'\r\n            - '}'\r\n\r\n      Handler: index.handler\r\n      Runtime: nodejs12.x\r\n      Timeout: '300'\r\n      Role: !GetAtt\r\n        - UserPoolClientRole\r\n        - Arn\r\n    DependsOn: HostedUIProvidersCustomResourceInputs\r\n\r\n  OAuthCustomResourcePolicy:\r\n    Type: 'AWS::IAM::Policy'\r\n    Properties:\r\n      PolicyName: !Join ['-',[!Ref UserPool, 'OAuth']]\r\n      Roles:\r\n        - !Ref UserPoolClientRole\r\n      PolicyDocument:\r\n        Version: '2012-10-17'\r\n        Statement:\r\n          - Effect: Allow\r\n            Action:\r\n              - 'cognito-idp:UpdateUserPoolClient'\r\n            Resource: !GetAtt UserPool.Arn\r\n    DependsOn: OAuthCustomResource\r\n\r\n  OAuthCustomResourceLogPolicy:\r\n    Type: 'AWS::IAM::Policy'\r\n    Properties:\r\n      PolicyName: !Join ['-',[!Ref UserPool, 'OAuthLogPolicy']]\r\n      Roles:\r\n        - !Ref UserPoolClientRole\r\n      PolicyDocument:\r\n        Version: 2012-10-17\r\n        Statement:\r\n          - Effect: Allow\r\n            Action:\r\n              - 'logs:CreateLogGroup'\r\n              - 'logs:CreateLogStream'\r\n              - 'logs:PutLogEvents'\r\n            Resource: !Sub\r\n              - arn:aws:logs:${region}:${account}:log-group:/aws/lambda/${lambda}:log-stream:*\r\n              - { region: !Ref \"AWS::Region\",  account: !Ref \"AWS::AccountId\", lambda: !Ref OAuthCustomResource}\r\n    DependsOn: OAuthCustomResourcePolicy\r\n\r\n  OAuthCustomResourceInputs:\r\n    Type: 'Custom::LambdaCallout'\r\n    Properties:\r\n      ServiceToken: !GetAtt OAuthCustomResource.Arn\r\n      userPoolId: !Ref UserPool\r\n      hostedUIProviderMeta: !Ref hostedUIProviderMeta\r\n      oAuthMetadata: !Ref oAuthMetadata\r\n      webClientId: !Ref 'UserPoolClientWeb'\r\n      nativeClientId: !Ref 'UserPoolClient'\r\n    DependsOn: OAuthCustomResourceLogPolicy\r\n  \r\n\r\n  \r\n    \r\n  # BEGIN IDENTITY POOL RESOURCES\r\n  \r\n\r\n  IdentityPool:\r\n  # Always created\r\n    Type: AWS::Cognito::IdentityPool\r\n    Properties:\r\n      IdentityPoolName: !If [ShouldNotCreateEnvResources, 'taskmaster556d444a_identitypool_556d444a', !Join ['',['taskmaster556d444a_identitypool_556d444a', '__', !Ref env]]]\r\n      \r\n      CognitoIdentityProviders:\r\n        - ClientId:  !Ref UserPoolClient\r\n          ProviderName: !Sub\r\n            - cognito-idp.${region}.amazonaws.com/${client}\r\n            - { region: !Ref \"AWS::Region\",  client: !Ref UserPool}\r\n        - ClientId:  !Ref UserPoolClientWeb\r\n          ProviderName: !Sub\r\n            - cognito-idp.${region}.amazonaws.com/${client}\r\n            - { region: !Ref \"AWS::Region\",  client: !Ref UserPool}\r\n            \r\n      AllowUnauthenticatedIdentities: !Ref allowUnauthenticatedIdentities\r\n      \r\n    \r\n    DependsOn: UserPoolClientInputs\r\n    \r\n\r\n  IdentityPoolRoleMap:\r\n  # Created to map Auth and Unauth roles to the identity pool\r\n  # Depends on Identity Pool for ID ref\r\n    Type: AWS::Cognito::IdentityPoolRoleAttachment\r\n    Properties:\r\n      IdentityPoolId: !Ref IdentityPool\r\n      Roles:\r\n          unauthenticated: !Ref unauthRoleArn\r\n          authenticated: !Ref authRoleArn\r\n    DependsOn: IdentityPool\r\n  \r\n\r\nOutputs :\r\n  \r\n  IdentityPoolId:\r\n    Value: !Ref 'IdentityPool'\r\n    Description:  Id for the identity pool\r\n  IdentityPoolName:\r\n    Value: !GetAtt IdentityPool.Name\r\n  \r\n  \r\n  HostedUIDomain:\r\n    Value: !If [ShouldNotCreateEnvResources, !Ref hostedUIDomainName, !Join ['-',[!Ref hostedUIDomainName, !Ref env]]]\r\n  \r\n  \r\n  OAuthMetadata:\r\n    Value: !Ref oAuthMetadata\r\n  \r\n  \r\n  UserPoolId:\r\n    Value: !Ref 'UserPool'\r\n    Description:  Id for the user pool\r\n  UserPoolArn:\r\n    Value: !GetAtt UserPool.Arn\r\n    Description:  Arn for the user pool\r\n  UserPoolName:\r\n    Value: !Ref userPoolName\r\n  AppClientIDWeb:\r\n    Value: !Ref 'UserPoolClientWeb'\r\n    Description: The user pool app client id for web\r\n  AppClientID:\r\n    Value: !Ref 'UserPoolClient'\r\n    Description: The user pool app client id\r\n  AppClientSecret:\r\n    Value: !GetAtt UserPoolClientInputs.appSecret\r\n    Condition: ShouldOutputAppClientSecrets\r\n  \r\n  \r\n  \r\n  \r\n  \r\n  \r\n  \r\n
+===================================================================
+--- amplify/backend/auth/taskmaster556d444a/taskmaster556d444a-cloudformation-template.yml	(revision 70341eea1ec62f01ed4c345aa2ac8154d7275edf)
++++ amplify/backend/auth/taskmaster556d444a/taskmaster556d444a-cloudformation-template.yml	(date 1623156077165)
+@@ -133,26 +133,6 @@
+   hostedUI:
+     Type: String
+             
+-  hostedUIProviderCreds:
+-    Type: String
+-  
+-            
+-  hostedUIDomainName:
+-    Type: String
+-  
+-            
+-        
+-  authProvidersUserPool:
+-    Type: CommaDelimitedList
+-      
+-  hostedUIProviderMeta:
+-    Type: String
+-  
+-            
+-  oAuthMetadata:
+-    Type: String
+-  
+-            
+             
+         
+   authProviders:
+@@ -365,358 +345,8 @@
+       userpoolId: !Ref UserPool
+     DependsOn: UserPoolClientLogPolicy
+   
+-  HostedUICustomResource:
+-    Type: 'AWS::Lambda::Function'
+-    Properties:
+-      Code:
+-        ZipFile: !Join
+-          - |+
+-          - - 'const response = require(''cfn-response'');'
+-            - 'const aws = require(''aws-sdk'');'
+-            - 'const identity = new aws.CognitoIdentityServiceProvider();'
+-            - 'exports.handler = (event, context, callback) => {'
+-            - ' const userPoolId = event.ResourceProperties.userPoolId;'
+-            - ' const inputDomainName = event.ResourceProperties.hostedUIDomainName;'
+-            - ' let deleteUserPoolDomain = (domainName) => {'
+-            - '   let params = { Domain: domainName, UserPoolId: userPoolId };'
+-            - '   return identity.deleteUserPoolDomain(params).promise();'
+-            - ' };'
+-            - ' if (event.RequestType == ''Delete'') {'
+-            - '   deleteUserPoolDomain(inputDomainName)'
+-            - '   .then(() => {response.send(event, context, response.SUCCESS, {})})'
+-            - '   .catch((err) => { console.log(err); response.send(event, context, response.FAILED, {err}) });'
+-            - ' }'
+-            - ' if (event.RequestType == ''Update'' || event.RequestType == ''Create'') {'
+-            - '  let checkDomainAvailability = (domainName) => {'
+-            - '  let params = { Domain: domainName };'
+-            - '  return identity.describeUserPoolDomain(params).promise().then((res) => {'
+-            - '   if (res.DomainDescription && res.DomainDescription.UserPool) {'
+-            - '    return false;'
+-            - '   }'
+-            - '   return true;'
+-            - '   }).catch((err) => { return false; });'
+-            - ' };'
+-            - ' let createUserPoolDomain = (domainName) => {'
+-            - '  let params = { Domain: domainName, UserPoolId: userPoolId };'
+-            - '   return identity.createUserPoolDomain(params).promise();'
+-            - ' };'
+-            - ' identity.describeUserPool({UserPoolId: userPoolId }).promise().then((result) => {'
+-            - '  if (inputDomainName) {'
+-            - '   if (result.UserPool.Domain === inputDomainName) {'
+-            - '    return;'
+-            - '    } else {'
+-            - '       if (!result.UserPool.Domain) {'
+-            - '         return checkDomainAvailability(inputDomainName).then((isDomainAvailable) => {'
+-            - '           if (isDomainAvailable) {'
+-            - '             return createUserPoolDomain(inputDomainName);'
+-            - '           } else {'
+-            - '               throw new Error(''Domain not available'');'
+-            - '           }'
+-            - '         });'
+-            - '       } else {'
+-            - '           return checkDomainAvailability(inputDomainName).then((isDomainAvailable) => {'
+-            - '             if (isDomainAvailable) {'
+-            - '               return deleteUserPoolDomain(result.UserPool.Domain).then(() => createUserPoolDomain(inputDomainName));'
+-            - '             } else {'
+-            - '                 throw new Error(''Domain not available'');'
+-            - '             }'
+-            - '           });'
+-            - '       }'
+-            - '     }'
+-            - '   } else {'
+-            - '       if (result.UserPool.Domain) {'
+-            - '         return deleteUserPoolDomain(result.UserPool.Domain);'
+-            - '       }'
+-            - '   }'
+-            - ' }).then(() => {response.send(event, context, response.SUCCESS, {})}).catch((err) => {'
+-            - ' console.log(err);  response.send(event, context, response.FAILED, {err});'
+-            - ' });'
+-            - '}}'
+ 
+-
+-      Handler: index.handler
+-      Runtime: nodejs12.x
+-      Timeout: '300'
+-      Role: !GetAtt
+-        - UserPoolClientRole
+-        - Arn
+-    DependsOn: UserPoolClientRole
+-
+-  HostedUICustomResourcePolicy:
+-    Type: 'AWS::IAM::Policy'
+-    Properties:
+-      PolicyName: !Join ['-',[!Ref UserPool, 'hostedUI']]
+-      Roles:
+-        - !Ref UserPoolClientRole
+-      PolicyDocument:
+-        Version: '2012-10-17'
+-        Statement:
+-          - Effect: Allow
+-            Action:
+-              - 'cognito-idp:CreateUserPoolDomain'
+-              - 'cognito-idp:DescribeUserPool'
+-              - 'cognito-idp:DeleteUserPoolDomain'
+-            Resource: !GetAtt UserPool.Arn
+-          - Effect: Allow
+-            Action:
+-              - 'cognito-idp:DescribeUserPoolDomain'
+-            Resource: '*'
+-    DependsOn: HostedUICustomResource
+-  HostedUICustomResourceLogPolicy:
+-    Type: 'AWS::IAM::Policy'
+-    Properties:
+-      PolicyName: !Join ['-',[!Ref UserPool, 'hostedUILogPolicy']]
+-      Roles:
+-        - !Ref UserPoolClientRole
+-      PolicyDocument:
+-        Version: 2012-10-17
+-        Statement:
+-          - Effect: Allow
+-            Action:
+-              - 'logs:CreateLogGroup'
+-              - 'logs:CreateLogStream'
+-              - 'logs:PutLogEvents'
+-            Resource: !Sub
+-              - arn:aws:logs:${region}:${account}:log-group:/aws/lambda/${lambda}:log-stream:*
+-              - { region: !Ref "AWS::Region",  account: !Ref "AWS::AccountId", lambda: !Ref HostedUICustomResource}
+-    DependsOn: HostedUICustomResourcePolicy
+-  HostedUICustomResourceInputs:
+-    Type: 'Custom::LambdaCallout'
+-    Properties:
+-      ServiceToken: !GetAtt HostedUICustomResource.Arn
+-      userPoolId: !Ref UserPool
+-      hostedUIDomainName: !If [ShouldNotCreateEnvResources, !Ref hostedUIDomainName, !Join ['-',[!Ref hostedUIDomainName, !Ref env]]]
+-    DependsOn: HostedUICustomResourceLogPolicy
+-  
+-
+-  
+-  HostedUIProvidersCustomResource:
+-    Type: 'AWS::Lambda::Function'
+-    Properties:
+-      Code:
+-        ZipFile: !Join
+-          - |+
+-          - - 'const response = require(''cfn-response'');'
+-            - 'const aws = require(''aws-sdk'');'
+-            - 'const identity = new aws.CognitoIdentityServiceProvider();'
+-            - 'exports.handler = (event, context, callback) => {'
+-            - 'try{'
+-            - ' const userPoolId = event.ResourceProperties.userPoolId;'
+-            - ' let hostedUIProviderMeta = JSON.parse(event.ResourceProperties.hostedUIProviderMeta);'
+-            - ' let hostedUIProviderCreds = JSON.parse(event.ResourceProperties.hostedUIProviderCreds);'
+-            - ' if(hostedUIProviderCreds.length === 0) {'
+-            - '  response.send(event, context, response.SUCCESS, {});'
+-            - ' }'
+-            - ' if (event.RequestType == ''Delete'') {'
+-            - '  response.send(event, context, response.SUCCESS, {});'
+-            - ' }'
+-            - ' if (event.RequestType == ''Update'' || event.RequestType == ''Create'') {'
+-            - '  let getRequestParams = (providerName) => {'
+-            - '   let providerMetaIndex = hostedUIProviderMeta.findIndex((provider) => provider.ProviderName === providerName);'
+-            - '   let providerMeta =  hostedUIProviderMeta[providerMetaIndex];'
+-            - '   let providerCredsIndex = hostedUIProviderCreds.findIndex((provider) => provider.ProviderName === providerName);'
+-            - '   let providerCreds = hostedUIProviderCreds[providerCredsIndex];'
+-            - '   let requestParams = {'
+-            - '    ProviderDetails: {'
+-            - '     ''client_id'': providerCreds.client_id,'
+-            - '     ''client_secret'': providerCreds.client_secret,'
+-            - '     ''authorize_scopes'': providerMeta.authorize_scopes'
+-            - '    },'
+-            - '    ProviderName: providerMeta.ProviderName,'
+-            - '    UserPoolId: userPoolId,'
+-            - '    AttributeMapping: providerMeta.AttributeMapping'
+-            - '   };'
+-            - '   return requestParams;'
+-            - '  };'
+-            - '  let createIdentityProvider = (providerName) => {'
+-            - '   let requestParams = getRequestParams(providerName);'
+-            - '   requestParams.ProviderType = requestParams.ProviderName;'
+-            - '   return identity.createIdentityProvider(requestParams).promise();'
+-            - '  };'
+-            - '  let updateIdentityProvider = (providerName) => {'
+-            - '   let requestParams = getRequestParams(providerName);'
+-            - '   return identity.updateIdentityProvider(requestParams).promise();'
+-            - '  };'
+-            - '  let deleteIdentityProvider = (providerName) => {'
+-            - '   let params = {ProviderName: providerName, UserPoolId: userPoolId};'
+-            - '   return identity.deleteIdentityProvider(params).promise();'
+-            - '  };'
+-            - '  let providerPromises = [];'
+-            - '  identity.listIdentityProviders({UserPoolId: userPoolId, MaxResults: 60}).promise()'
+-            - '  .then((result) => {'
+-            - '   let providerList = result.Providers.map(provider => provider.ProviderName);'
+-            - '   let providerListInParameters = hostedUIProviderMeta.map(provider => provider.ProviderName);'
+-            - '   hostedUIProviderMeta.forEach((providerMetadata) => {'
+-            - '    if(providerList.indexOf(providerMetadata.ProviderName) > -1) {'
+-            - '     providerPromises.push(updateIdentityProvider(providerMetadata.ProviderName));'
+-            - '    } else {'
+-            - '     providerPromises.push(createIdentityProvider(providerMetadata.ProviderName));'
+-            - '    }'
+-            - '  });'
+-            - '  providerList.forEach((provider) => {'
+-            - '   if(providerListInParameters.indexOf(provider) < 0) {'
+-            - '    providerPromises.push(deleteIdentityProvider(provider));'
+-            - '   }'
+-            - '  });'
+-            - '  return Promise.all(providerPromises);'
+-            - ' }).then(() => {response.send(event, context, response.SUCCESS, {})}).catch((err) => {'
+-            - '   console.log(err.stack); response.send(event, context, response.FAILED, {err})'
+-            - ' });'
+-            - ' } '
+-            - ' } catch(err) { console.log(err.stack); response.send(event, context, response.FAILED, {err});};'
+-            - '} '
+-
+-      Handler: index.handler
+-      Runtime: nodejs12.x
+-      Timeout: '300'
+-      Role: !GetAtt
+-        - UserPoolClientRole
+-        - Arn
+-    DependsOn: UserPoolClientRole
+-
+-  HostedUIProvidersCustomResourcePolicy:
+-    Type: 'AWS::IAM::Policy'
+-    Properties:
+-      PolicyName: !Join ['-',[!Ref UserPool, 'hostedUIProvider']]
+-      Roles:
+-        - !Ref UserPoolClientRole
+-      PolicyDocument:
+-        Version: '2012-10-17'
+-        Statement:
+-          - Effect: Allow
+-            Action:
+-              - 'cognito-idp:CreateIdentityProvider'
+-              - 'cognito-idp:UpdateIdentityProvider'
+-              - 'cognito-idp:ListIdentityProviders'
+-              - 'cognito-idp:DeleteIdentityProvider'
+-            Resource: !GetAtt UserPool.Arn
+-    DependsOn: HostedUIProvidersCustomResource
+-
+-  HostedUIProvidersCustomResourceLogPolicy:
+-    Type: 'AWS::IAM::Policy'
+-    Properties:
+-      PolicyName: !Join ['-',[!Ref UserPool, 'hostedUIProviderLogPolicy']]
+-      Roles:
+-        - !Ref UserPoolClientRole
+-      PolicyDocument:
+-        Version: 2012-10-17
+-        Statement:
+-          - Effect: Allow
+-            Action:
+-              - 'logs:CreateLogGroup'
+-              - 'logs:CreateLogStream'
+-              - 'logs:PutLogEvents'
+-            Resource: !Sub
+-              - arn:aws:logs:${region}:${account}:log-group:/aws/lambda/${lambda}:log-stream:*
+-              - { region: !Ref "AWS::Region",  account: !Ref "AWS::AccountId", lambda: !Ref HostedUIProvidersCustomResource}
+-    DependsOn: HostedUIProvidersCustomResourcePolicy
+-
+-  HostedUIProvidersCustomResourceInputs:
+-    Type: 'Custom::LambdaCallout'
+-    Properties:
+-      ServiceToken: !GetAtt HostedUIProvidersCustomResource.Arn
+-      userPoolId: !Ref UserPool
+-      hostedUIProviderMeta: !Ref hostedUIProviderMeta
+-      hostedUIProviderCreds: !Ref hostedUIProviderCreds
+-    DependsOn: HostedUIProvidersCustomResourceLogPolicy
+-  
+-  
+-  OAuthCustomResource:
+-    Type: 'AWS::Lambda::Function'
+-    Properties:
+-      Code:
+-        ZipFile: !Join
+-          - |+
+-          - - 'const response = require(''cfn-response'');'
+-            - 'const aws = require(''aws-sdk'');'
+-            - 'const identity = new aws.CognitoIdentityServiceProvider();'
+-            - 'exports.handler = (event, context, callback) => {'
+-            - 'try{'
+-            - ' const userPoolId = event.ResourceProperties.userPoolId;'
+-            - ' let webClientId = event.ResourceProperties.webClientId;'
+-            - ' let nativeClientId = event.ResourceProperties.nativeClientId;'
+-            - ' let hostedUIProviderMeta = JSON.parse(event.ResourceProperties.hostedUIProviderMeta);'
+-            - ' let oAuthMetadata = JSON.parse(event.ResourceProperties.oAuthMetadata);'
+-            - ' let providerList = hostedUIProviderMeta.map(provider => provider.ProviderName);'
+-            - ' providerList.push(''COGNITO'');'
+-            - ' if (event.RequestType == ''Delete'') {'
+-            - '  response.send(event, context, response.SUCCESS, {});'
+-            - ' }'
+-            - ' if (event.RequestType == ''Update'' || event.RequestType == ''Create'') {'
+-            - '  let params = {'
+-            - '   UserPoolId: userPoolId,'
+-            - '   AllowedOAuthFlows: oAuthMetadata.AllowedOAuthFlows,'
+-            - '   AllowedOAuthFlowsUserPoolClient: true,'
+-            - '   AllowedOAuthScopes: oAuthMetadata.AllowedOAuthScopes,'
+-            - '   CallbackURLs: oAuthMetadata.CallbackURLs,'
+-            - '   LogoutURLs: oAuthMetadata.LogoutURLs,'
+-            - '   SupportedIdentityProviders: providerList'
+-            - '  };'
+-            - '  let updateUserPoolClientPromises = [];'
+-            - '  params.ClientId = webClientId;'
+-            - '  updateUserPoolClientPromises.push(identity.updateUserPoolClient(params).promise());'
+-            - '  params.ClientId = nativeClientId;'
+-            - '  updateUserPoolClientPromises.push(identity.updateUserPoolClient(params).promise());'
+-            - '  Promise.all(updateUserPoolClientPromises)'
+-            - '  .then(() => {response.send(event, context, response.SUCCESS, {})}).catch((err) => {'
+-            - '    console.log(err.stack); response.send(event, context, response.FAILED, {err});'
+-            - '  });'
+-            - ' }'
+-            - '} catch(err) { console.log(err.stack); response.send(event, context, response.FAILED, {err});};'
+-            - '}'
+-
+-      Handler: index.handler
+-      Runtime: nodejs12.x
+-      Timeout: '300'
+-      Role: !GetAtt
+-        - UserPoolClientRole
+-        - Arn
+-    DependsOn: HostedUIProvidersCustomResourceInputs
+-
+-  OAuthCustomResourcePolicy:
+-    Type: 'AWS::IAM::Policy'
+-    Properties:
+-      PolicyName: !Join ['-',[!Ref UserPool, 'OAuth']]
+-      Roles:
+-        - !Ref UserPoolClientRole
+-      PolicyDocument:
+-        Version: '2012-10-17'
+-        Statement:
+-          - Effect: Allow
+-            Action:
+-              - 'cognito-idp:UpdateUserPoolClient'
+-            Resource: !GetAtt UserPool.Arn
+-    DependsOn: OAuthCustomResource
+-
+-  OAuthCustomResourceLogPolicy:
+-    Type: 'AWS::IAM::Policy'
+-    Properties:
+-      PolicyName: !Join ['-',[!Ref UserPool, 'OAuthLogPolicy']]
+-      Roles:
+-        - !Ref UserPoolClientRole
+-      PolicyDocument:
+-        Version: 2012-10-17
+-        Statement:
+-          - Effect: Allow
+-            Action:
+-              - 'logs:CreateLogGroup'
+-              - 'logs:CreateLogStream'
+-              - 'logs:PutLogEvents'
+-            Resource: !Sub
+-              - arn:aws:logs:${region}:${account}:log-group:/aws/lambda/${lambda}:log-stream:*
+-              - { region: !Ref "AWS::Region",  account: !Ref "AWS::AccountId", lambda: !Ref OAuthCustomResource}
+-    DependsOn: OAuthCustomResourcePolicy
+-
+-  OAuthCustomResourceInputs:
+-    Type: 'Custom::LambdaCallout'
+-    Properties:
+-      ServiceToken: !GetAtt OAuthCustomResource.Arn
+-      userPoolId: !Ref UserPool
+-      hostedUIProviderMeta: !Ref hostedUIProviderMeta
+-      oAuthMetadata: !Ref oAuthMetadata
+-      webClientId: !Ref 'UserPoolClientWeb'
+-      nativeClientId: !Ref 'UserPoolClient'
+-    DependsOn: OAuthCustomResourceLogPolicy
++  
+   
+ 
+   
+@@ -767,12 +397,6 @@
+     Value: !GetAtt IdentityPool.Name
+   
+   
+-  HostedUIDomain:
+-    Value: !If [ShouldNotCreateEnvResources, !Ref hostedUIDomainName, !Join ['-',[!Ref hostedUIDomainName, !Ref env]]]
+-  
+-  
+-  OAuthMetadata:
+-    Value: !Ref oAuthMetadata
+   
+   
+   UserPoolId:
+Index: amplify/backend/backend-config.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{\r\n  \"api\": {\r\n    \"taskmaster\": {\r\n      \"service\": \"AppSync\",\r\n      \"providerPlugin\": \"awscloudformation\",\r\n      \"output\": {\r\n        \"authConfig\": {\r\n          \"defaultAuthentication\": {\r\n            \"authenticationType\": \"API_KEY\",\r\n            \"apiKeyConfig\": {\r\n              \"apiKeyExpirationDays\": 7,\r\n              \"description\": \"Task\"\r\n            }\r\n          },\r\n          \"additionalAuthenticationProviders\": []\r\n        }\r\n      }\r\n    }\r\n  },\r\n  \"auth\": {\r\n    \"taskmaster556d444a\": {\r\n      \"service\": \"Cognito\",\r\n      \"providerPlugin\": \"awscloudformation\",\r\n      \"dependsOn\": [],\r\n      \"customAuth\": false\r\n    }\r\n  },\r\n  \"storage\": {\r\n    \"Images\": {\r\n      \"service\": \"S3\",\r\n      \"providerPlugin\": \"awscloudformation\"\r\n    }\r\n  }\r\n}
+===================================================================
+--- amplify/backend/backend-config.json	(revision 70341eea1ec62f01ed4c345aa2ac8154d7275edf)
++++ amplify/backend/backend-config.json	(date 1623181139841)
+@@ -9,7 +9,7 @@
+             "authenticationType": "API_KEY",
+             "apiKeyConfig": {
+               "apiKeyExpirationDays": 7,
+-              "description": "Task"
++              "description": ""
+             }
+           },
+           "additionalAuthenticationProviders": []
+@@ -26,7 +26,7 @@
+     }
+   },
+   "storage": {
+-    "Images": {
++    "s3cb802f92": {
+       "service": "S3",
+       "providerPlugin": "awscloudformation"
+     }
